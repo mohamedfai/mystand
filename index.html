@@ -8,37 +8,24 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b0b0b; color: #ffffff; display: flex; justify-content: center; min-height: 100vh; }
+    body { background-color: #0b0b0b; color: #ffffff; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
     .container { width: 100%; max-width: 440px; position: relative; padding-bottom: 40px; }
-
-    /* Header & Cover */
-    .cover-box { width: 100%; height: 160px; background-color: #141414; background-size: cover; background-position: center; }
+    .cover-box { width: 100%; height: 160px; background-color: #141414; background-size: cover; background-position: center; border-radius: 12px; }
     .avatar-wrapper { display: flex; justify-content: center; margin-top: -65px; margin-bottom: 12px; }
     .avatar-box { width: 125px; height: 125px; border-radius: 28px; border: 2.5px solid #d4af37; background-color: #121212; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.8); }
     .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-
-    /* Profile Info (Centered) */
     .profile-info { text-align: center; padding: 0 20px; display: flex; flex-direction: column; align-items: center; }
-    .profile-badge { display: inline-block; padding: 4px 14px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 20px; color: #d4af37; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .profile-badge { display: inline-block; padding: 4px 14px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 20px; color: #d4af37; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
     .profile-name { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 20px; }
-
-    /* Section Titles */
-    .section-title { font-size: 12px; font-weight: 700; color: #888888; text-transform: uppercase; letter-spacing: 1.5px; margin: 18px 20px 8px; text-align: center; }
+    .section-title { font-size: 12px; font-weight: 700; color: #888888; text-transform: uppercase; margin: 18px 20px 8px; text-align: center; }
     .section-title.gold { color: #d4af37; text-align: left; margin-left: 20px; }
-
-    /* Grid Layout */
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 5px; }
     .btn-full { padding: 0 16px; margin-bottom: 5px; }
-
-    /* Card Buttons */
-    .action-card { display: flex; align-items: center; gap: 10px; background-color: #141414; border: 1px solid #242424; padding: 12px 14px; border-radius: 14px; text-decoration: none; color: #ffffff; transition: 0.1s; }
-    .action-card:active { transform: scale(0.97); }
+    .action-card { display: flex; align-items: center; gap: 10px; background-color: #141414; border: 1px solid #242424; padding: 12px 14px; border-radius: 14px; text-decoration: none; color: #ffffff; }
     .action-card i { font-size: 22px; width: 30px; text-align: center; }
     .action-text { display: flex; flex-direction: column; overflow: hidden; }
     .action-title { font-size: 13px; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .action-sub { font-size: 10px; color: #888888; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-
-    /* Colors */
+    .action-sub { font-size: 10px; color: #888888; }
     .c-call { color: #2ecc71; border-color: rgba(46, 204, 113, 0.2); }
     .c-wa { color: #25d366; border-color: rgba(37, 211, 102, 0.2); }
     .c-maps { color: #ea4335; border-color: rgba(234, 67, 53, 0.2); }
@@ -48,30 +35,23 @@
     .c-tt { color: #ffffff; border-color: rgba(255, 255, 255, 0.2); }
     .c-web { color: #f39c12; border-color: rgba(243, 156, 18, 0.2); }
     .c-rev { color: #fbbc05; border-color: rgba(251, 188, 5, 0.2); }
-
-    /* Footer */
     .edit-footer { text-align: center; margin-top: 30px; }
-    .btn-edit { background: none; border: none; color: #444444; font-size: 12px; cursor: pointer; text-decoration: underline; }
-
-    /* Form */
-    .form-container { display: none; padding: 25px 20px; }
+    .btn-edit { background: none; border: none; color: #666; font-size: 12px; cursor: pointer; text-decoration: underline; }
+    .form-container { display: none; padding: 20px 10px; width: 100%; }
     .form-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 20px; text-align: center; }
     .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 12px; color: #aaaaaa; margin-bottom: 5px; }
+    .form-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; }
     .form-control { width: 100%; padding: 12px; background-color: #141414; border: 1px solid #2a2a2a; border-radius: 10px; color: #fff; font-size: 14px; }
-    .form-control:focus { outline: none; border-color: #d4af37; }
-    .multi-fields { display: flex; flex-direction: column; gap: 8px; }
-    .btn-add { background: none; border: none; color: #d4af37; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 4px; text-align: left; }
+    .btn-add { background: none; border: none; color: #d4af37; font-size: 12px; margin-top: 4px; }
     .btn-submit { width: 100%; padding: 14px; background-color: #d4af37; color: #000; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
-    #loader { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 18px; color: #d4af37; }
+    #loader { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 16px; color: #d4af37; text-align: center; }
   </style>
 </head>
 <body>
 
-<div id="loader"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+<div id="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Chargement du profil...</div>
 
 <div class="container" id="mainApp" style="display: none;">
-  
   <div id="profileView">
     <div class="cover-box" id="dispCover"></div>
     <div class="avatar-wrapper">
@@ -79,25 +59,20 @@
         <img id="dispAvatar" src="https://via.placeholder.com/150/141414/d4af37?text=Logo" alt="Avatar" />
       </div>
     </div>
-    
     <div class="profile-info">
       <div class="profile-badge" id="dispProf">SECTEUR D'ACTIVITÉ</div>
       <h1 class="profile-name" id="dispName">Nom du Commerce</h1>
     </div>
-
     <div class="btn-grid" id="directGrid"></div>
-
     <div id="socialSection" style="display: none;">
       <div class="section-title">RÉSEAUX SOCIAUX</div>
       <div class="btn-grid" id="socialGrid"></div>
       <div class="btn-full" id="socialFull"></div>
     </div>
-
     <div id="practicalSection" style="display: none;">
       <div class="section-title gold">Informations pratiques</div>
       <div class="btn-grid" id="practicalGrid"></div>
     </div>
-
     <div class="edit-footer">
       <button class="btn-edit" onclick="promptEdit()"><i class="fas fa-lock"></i> Modifier les informations</button>
     </div>
@@ -123,23 +98,20 @@
         <input type="url" class="form-control" id="inCover" placeholder="https://..." />
       </div>
       <div class="form-group">
-        <label>Numéro(s) Téléphone</label>
-        <div id="phonesWrap" class="multi-fields"><input type="tel" class="form-control phone-in" placeholder="06XXXXXXXX" /></div>
-        <button type="button" class="btn-add" onclick="addField('phonesWrap', 'phone-in', '06XXXXXXXX')">+ Ajouter un autre numéro</button>
+        <label>Numéro Téléphone</label>
+        <div id="phonesWrap"><input type="tel" class="form-control phone-in" placeholder="06XXXXXXXX" /></div>
       </div>
       <div class="form-group">
-        <label>Numéro(s) WhatsApp</label>
-        <div id="waWrap" class="multi-fields"><input type="tel" class="form-control wa-in" placeholder="06XXXXXXXX" /></div>
-        <button type="button" class="btn-add" onclick="addField('waWrap', 'wa-in', '06XXXXXXXX')">+ Ajouter un autre WhatsApp</button>
+        <label>Numéro WhatsApp</label>
+        <div id="waWrap"><input type="tel" class="form-control wa-in" placeholder="06XXXXXXXX" /></div>
       </div>
       <div class="form-group">
         <label>Lien Instagram</label>
         <input type="url" class="form-control" id="inIg" placeholder="https://instagram.com/..." />
       </div>
       <div class="form-group">
-        <label>Lien(s) Facebook</label>
-        <div id="fbWrap" class="multi-fields"><input type="url" class="form-control fb-in" placeholder="https://facebook.com/..." /></div>
-        <button type="button" class="btn-add" onclick="addField('fbWrap', 'fb-in', 'https://facebook.com/...')">+ Ajouter Facebook</button>
+        <label>Lien Facebook</label>
+        <div id="fbWrap"><input type="url" class="form-control fb-in" placeholder="https://facebook.com/..." /></div>
       </div>
       <div class="form-group">
         <label>Lien TikTok</label>
@@ -150,21 +122,12 @@
         <input type="url" class="form-control" id="inMaps" placeholder="https://maps.google.com/..." />
       </div>
       <div class="form-group">
-        <label>Lien Site Web</label>
-        <input type="url" class="form-control" id="inWeb" placeholder="https://monsite.com" />
-      </div>
-      <div class="form-group">
-        <label>Lien Avis Google</label>
-        <input type="url" class="form-control" id="inRev" placeholder="https://g.page/r/..." />
-      </div>
-      <div class="form-group">
-        <label>Code PIN (4 chiffres)</label>
+        <label>Code PIN (4 chiffres pour modifier plus tard)</label>
         <input type="password" maxlength="4" class="form-control" id="inPin" required placeholder="1234" />
       </div>
-      <button type="submit" class="btn-submit" id="btnSubmit">Enregistrer</button>
+      <button type="submit" class="btn-submit" id="btnSubmit">Enregistrer le Stand</button>
     </form>
   </div>
-
 </div>
 
 <script>
@@ -173,34 +136,30 @@
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const urlParams = new URLSearchParams(window.location.search);
-  const standId = urlParams.get('id');
+  const standId = urlParams.get('id') || 'client01';
   let currentCardData = null;
 
   async function init() {
-    if (!standId) {
-      document.body.innerHTML = "<h3 style='color:#d4af37;text-align:center;margin-top:50px;'>Scannez un stand valide.</h3>";
-      return;
-    }
-    const { data, error } = await supabase.from('cards').select('*').eq('id', standId).single();
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
+    try {
+      const { data, error } = await supabase.from('cards').select('*').eq('id', standId).maybeSingle();
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
 
-    if (error || !data) {
-      document.body.innerHTML = "<h3 style='color:red;text-align:center;margin-top:50px;'>Stand introuvable dans la base.</h3>";
-      return;
-    }
-    currentCardData = data;
-    if (!data.is_active) {
-      openForm(false);
-    } else {
-      renderProfile(data);
+      if (!data || !data.is_active) {
+        currentCardData = data || { id: standId };
+        openForm(false);
+      } else {
+        currentCardData = data;
+        renderProfile(data);
+      }
+    } catch (err) {
+      document.getElementById('loader').innerHTML = "<p style='color:red;'>Erreur de connexion. Vérifiez les tables Supabase.</p>";
     }
   }
 
   function renderProfile(d) {
     document.getElementById('profileView').style.display = 'block';
     document.getElementById('formView').style.display = 'none';
-
     document.getElementById('dispName').textContent = d.full_name || '';
     if (d.profession) {
       document.getElementById('dispProf').textContent = d.profession;
@@ -208,7 +167,6 @@
     } else {
       document.getElementById('dispProf').style.display = 'none';
     }
-
     if (d.avatar_url) document.getElementById('dispAvatar').src = d.avatar_url;
     if (d.cover_url) document.getElementById('dispCover').style.backgroundImage = `url('${d.cover_url}')`;
 
@@ -216,47 +174,26 @@
     const sGrid = document.getElementById('socialGrid');
     const sFull = document.getElementById('socialFull');
     const pGrid = document.getElementById('practicalGrid');
-
     dGrid.innerHTML = ''; sGrid.innerHTML = ''; sFull.innerHTML = ''; pGrid.innerHTML = '';
 
     if (d.phones && d.phones.length > 0) {
-      d.phones.forEach((p, i) => {
-        dGrid.appendChild(cardBtn(`tel:${p}`, 'fas fa-phone-alt', 'c-call', d.phones.length > 1 ? `Appeler ${i+1}` : 'Appeler', p));
-      });
+      d.phones.forEach((p) => { dGrid.appendChild(cardBtn(`tel:${p}`, 'fas fa-phone-alt', 'c-call', 'Appeler', p)); });
     }
     if (d.whatsapps && d.whatsapps.length > 0) {
-      d.whatsapps.forEach((w, i) => {
-        dGrid.appendChild(cardBtn(`https://wa.me/${w.replace(/[^0-9]/g, '')}`, 'fab fa-whatsapp', 'c-wa', d.whatsapps.length > 1 ? `WhatsApp ${i+1}` : 'WhatsApp', 'Écrire'));
-      });
+      d.whatsapps.forEach((w) => { dGrid.appendChild(cardBtn(`https://wa.me/${w.replace(/[^0-9]/g, '')}`, 'fab fa-whatsapp', 'c-wa', 'WhatsApp', 'Discuter')); });
     }
-    if (d.phones && d.phones.length > 0) {
-      const vcard = document.createElement('a');
-      vcard.className = 'action-card c-vcard';
-      vcard.href = '#';
-      vcard.onclick = (e) => { e.preventDefault(); downloadVCard(d); };
-      vcard.innerHTML = `<i class="fas fa-address-card"></i><div class="action-text"><div class="action-title">Enregistrer</div><div class="action-sub">Contact VCard</div></div>`;
-      dGrid.appendChild(vcard);
-    }
-
     let hasSocial = false;
     if (d.instagram) { sGrid.appendChild(cardBtn(d.instagram, 'fab fa-instagram', 'c-ig', 'Instagram', 'Suivre')); hasSocial = true; }
     if (d.facebook && d.facebook.length > 0) {
-      d.facebook.forEach((f, i) => {
-        sGrid.appendChild(cardBtn(f, 'fab fa-facebook-f', 'c-fb', d.facebook.length > 1 ? `Facebook ${i+1}` : 'Facebook', 'Page'));
-        hasSocial = true;
-      });
+      d.facebook.forEach((f) => { sGrid.appendChild(cardBtn(f, 'fab fa-facebook-f', 'c-fb', 'Facebook', 'Page')); hasSocial = true; });
     }
-    if (d.tiktok) {
-      sFull.appendChild(cardBtn(d.tiktok, 'fab fa-tiktok', 'c-tt', 'TikTok', 'Vidéos'));
-      hasSocial = true;
-    }
+    if (d.tiktok) { sFull.appendChild(cardBtn(d.tiktok, 'fab fa-tiktok', 'c-tt', 'TikTok', 'Vidéos')); hasSocial = true; }
     document.getElementById('socialSection').style.display = hasSocial ? 'block' : 'none';
 
-    let hasPrac = false;
-    if (d.maps) { pGrid.appendChild(cardBtn(d.maps, 'fas fa-map-marker-alt', 'c-maps', 'Google Maps', "Itinéraire")); hasPrac = true; }
-    if (d.google_reviews) { pGrid.appendChild(cardBtn(d.google_reviews, 'fas fa-star', 'c-rev', 'Avis Google', 'Laisser un avis')); hasPrac = true; }
-    if (d.website) { pGrid.appendChild(cardBtn(d.website, 'fas fa-globe', 'c-web', 'Site Internet', 'Visiter')); hasPrac = true; }
-    document.getElementById('practicalSection').style.display = hasPrac ? 'block' : 'none';
+    if (d.maps) {
+      pGrid.appendChild(cardBtn(d.maps, 'fas fa-map-marker-alt', 'c-maps', 'Google Maps', "Itinéraire"));
+      document.getElementById('practicalSection').style.display = 'block';
+    }
   }
 
   function cardBtn(url, icon, colorCls, title, sub) {
@@ -266,16 +203,6 @@
     a.target = '_blank';
     a.innerHTML = `<i class="${icon}"></i><div class="action-text"><div class="action-title">${title}</div><div class="action-sub">${sub}</div></div>`;
     return a;
-  }
-
-  function downloadVCard(d) {
-    const p = d.phones && d.phones.length > 0 ? d.phones[0] : '';
-    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${d.full_name || 'Contact'}\nORG:${d.profession || ''}\nTEL;TYPE=CELL:${p}\nURL:${d.website || ''}\nEND:VCARD`;
-    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${d.full_name || 'contact'}.vcf`;
-    link.click();
   }
 
   function promptEdit() {
@@ -288,39 +215,6 @@
     document.getElementById('profileView').style.display = 'none';
     document.getElementById('formView').style.display = 'block';
     document.getElementById('formHeader').textContent = isEdit ? "Modifier les Informations" : "Activer ce Stand";
-
-    if (isEdit && currentCardData) {
-      document.getElementById('inName').value = currentCardData.full_name || '';
-      document.getElementById('inProf').value = currentCardData.profession || '';
-      document.getElementById('inAvatar').value = currentCardData.avatar_url || '';
-      document.getElementById('inCover').value = currentCardData.cover_url || '';
-      document.getElementById('inIg').value = currentCardData.instagram || '';
-      document.getElementById('inTt').value = currentCardData.tiktok || '';
-      document.getElementById('inMaps').value = currentCardData.maps || '';
-      document.getElementById('inWeb').value = currentCardData.website || '';
-      document.getElementById('inRev').value = currentCardData.google_reviews || '';
-      document.getElementById('inPin').value = currentCardData.pin || '';
-
-      fillMulti('phonesWrap', 'phone-in', currentCardData.phones);
-      fillMulti('waWrap', 'wa-in', currentCardData.whatsapps);
-      fillMulti('fbWrap', 'fb-in', currentCardData.facebook);
-    }
-  }
-
-  function addField(id, cls, ph) {
-    const w = document.getElementById(id);
-    const inp = document.createElement('input');
-    inp.className = `form-control ${cls}`;
-    inp.placeholder = ph;
-    w.appendChild(inp);
-  }
-
-  function fillMulti(id, cls, arr) {
-    const w = document.getElementById(id);
-    w.innerHTML = '';
-    if (arr && arr.length > 0) {
-      arr.forEach(v => { const inp = document.createElement('input'); inp.className = `form-control ${cls}`; inp.value = v; w.appendChild(inp); });
-    } else { addField(id, cls, ''); }
   }
 
   document.getElementById('standForm').onsubmit = async (e) => {
@@ -328,10 +222,10 @@
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
     btn.textContent = "Enregistrement...";
-
     const getVals = (cls) => Array.from(document.querySelectorAll(`.${cls}`)).map(i => i.value.trim()).filter(v => v !== "");
 
     const update = {
+      id: standId,
       full_name: document.getElementById('inName').value.trim(),
       profession: document.getElementById('inProf').value.trim(),
       avatar_url: document.getElementById('inAvatar').value.trim(),
@@ -342,21 +236,19 @@
       facebook: getVals('fb-in'),
       tiktok: document.getElementById('inTt').value.trim(),
       maps: document.getElementById('inMaps').value.trim(),
-      website: document.getElementById('inWeb').value.trim(),
-      google_reviews: document.getElementById('inRev').value.trim(),
       pin: document.getElementById('inPin').value.trim(),
       is_active: true
     };
 
-    const { error } = await supabase.from('cards').update(update).eq('id', standId);
+    const { error } = await supabase.from('cards').upsert(update);
     if (!error) {
-      currentCardData = { ...currentCardData, ...update };
+      currentCardData = update;
       renderProfile(currentCardData);
     } else {
-      alert("Erreur lors de l'enregistrement.");
+      alert("Erreur: " + error.message);
     }
     btn.disabled = false;
-    btn.textContent = "Enregistrer";
+    btn.textContent = "Enregistrer le Stand";
   };
 
   init();
