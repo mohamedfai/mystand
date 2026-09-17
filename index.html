@@ -38,7 +38,7 @@
     .action-title { font-size: 13px; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .action-sub { font-size: 10px; color: #888888; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* Specific Icon Colors & Borders */
+    /* Colors */
     .c-call { color: #2ecc71; border-color: rgba(46, 204, 113, 0.2); }
     .c-wa { color: #25d366; border-color: rgba(37, 211, 102, 0.2); }
     .c-maps { color: #ea4335; border-color: rgba(234, 67, 53, 0.2); }
@@ -49,11 +49,11 @@
     .c-web { color: #f39c12; border-color: rgba(243, 156, 18, 0.2); }
     .c-rev { color: #fbbc05; border-color: rgba(251, 188, 5, 0.2); }
 
-    /* Footer / Edit */
+    /* Footer */
     .edit-footer { text-align: center; margin-top: 30px; }
     .btn-edit { background: none; border: none; color: #444444; font-size: 12px; cursor: pointer; text-decoration: underline; }
 
-    /* Form Styles */
+    /* Form */
     .form-container { display: none; padding: 25px 20px; }
     .form-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 20px; text-align: center; }
     .form-group { margin-bottom: 14px; }
@@ -72,7 +72,6 @@
 
 <div class="container" id="mainApp" style="display: none;">
   
-  <!-- PROFIL -->
   <div id="profileView">
     <div class="cover-box" id="dispCover"></div>
     <div class="avatar-wrapper">
@@ -86,17 +85,14 @@
       <h1 class="profile-name" id="dispName">Nom du Commerce</h1>
     </div>
 
-    <!-- Contact Direct -->
     <div class="btn-grid" id="directGrid"></div>
 
-    <!-- Réseaux Sociaux -->
     <div id="socialSection" style="display: none;">
       <div class="section-title">RÉSEAUX SOCIAUX</div>
       <div class="btn-grid" id="socialGrid"></div>
       <div class="btn-full" id="socialFull"></div>
     </div>
 
-    <!-- Infos Pratiques (Maps / Web / Reviews) -->
     <div id="practicalSection" style="display: none;">
       <div class="section-title gold">Informations pratiques</div>
       <div class="btn-grid" id="practicalGrid"></div>
@@ -107,7 +103,6 @@
     </div>
   </div>
 
-  <!-- FORMULAIRE -->
   <div class="form-container" id="formView">
     <h2 class="form-title" id="formHeader">Activer ce Stand</h2>
     <form id="standForm">
@@ -174,7 +169,7 @@
 
 <script>
   const SUPABASE_URL = "https://fvkezmpqjztbaeggeiky.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_FmhvDjdPOoJ3rY7-IFMNGw_Qp5Yjlxf";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2a2V6bXBxanp0YmFlZ2dlaWt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NDkyOTIsImV4cCI6MjEwNTIyNTI5Mn0.UiH8oBV8YmMziGmFK-dIr_qC2FVnVv97Oi_5195RX0g";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -183,7 +178,7 @@
 
   async function init() {
     if (!standId) {
-      document.body.innerHTML = "<h3 style='color:red;text-align:center;margin-top:50px;'>ID de stand manquant.</h3>";
+      document.body.innerHTML = "<h3 style='color:#d4af37;text-align:center;margin-top:50px;'>Scannez un stand valide.</h3>";
       return;
     }
     const { data, error } = await supabase.from('cards').select('*').eq('id', standId).single();
@@ -191,7 +186,7 @@
     document.getElementById('mainApp').style.display = 'block';
 
     if (error || !data) {
-      document.body.innerHTML = "<h3 style='color:red;text-align:center;margin-top:50px;'>Stand introuvable.</h3>";
+      document.body.innerHTML = "<h3 style='color:red;text-align:center;margin-top:50px;'>Stand introuvable dans la base.</h3>";
       return;
     }
     currentCardData = data;
@@ -224,7 +219,6 @@
 
     dGrid.innerHTML = ''; sGrid.innerHTML = ''; sFull.innerHTML = ''; pGrid.innerHTML = '';
 
-    // Direct (Call & WhatsApp)
     if (d.phones && d.phones.length > 0) {
       d.phones.forEach((p, i) => {
         dGrid.appendChild(cardBtn(`tel:${p}`, 'fas fa-phone-alt', 'c-call', d.phones.length > 1 ? `Appeler ${i+1}` : 'Appeler', p));
@@ -244,7 +238,6 @@
       dGrid.appendChild(vcard);
     }
 
-    // Réseaux Sociaux
     let hasSocial = false;
     if (d.instagram) { sGrid.appendChild(cardBtn(d.instagram, 'fab fa-instagram', 'c-ig', 'Instagram', 'Suivre')); hasSocial = true; }
     if (d.facebook && d.facebook.length > 0) {
@@ -259,7 +252,6 @@
     }
     document.getElementById('socialSection').style.display = hasSocial ? 'block' : 'none';
 
-    // Pratiques
     let hasPrac = false;
     if (d.maps) { pGrid.appendChild(cardBtn(d.maps, 'fas fa-map-marker-alt', 'c-maps', 'Google Maps', "Itinéraire")); hasPrac = true; }
     if (d.google_reviews) { pGrid.appendChild(cardBtn(d.google_reviews, 'fas fa-star', 'c-rev', 'Avis Google', 'Laisser un avis')); hasPrac = true; }
