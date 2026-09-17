@@ -3,14 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil Digital</title>
+  <title>Gestionnaire NFC Stands</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b0b0b; color: #ffffff; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
-    .container { width: 100%; max-width: 440px; position: relative; padding-bottom: 40px; }
-    .cover-box { width: 100%; height: 160px; background-color: #141414; background-size: cover; background-position: center; border-radius: 12px; }
+    body { background-color: #0b0b0b; color: #ffffff; display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
+    .container { width: 100%; max-width: 450px; position: relative; padding-bottom: 40px; }
+
+    /* Top Bar & Navigation */
+    .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px; }
+    .btn-back { background: #1a1a1a; border: 1px solid #333; color: #d4af37; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+
+    /* Dashboard List (50 Clients) */
+    .dash-header { text-align: center; margin-bottom: 20px; }
+    .dash-header h1 { font-size: 22px; color: #d4af37; margin-bottom: 6px; }
+    .dash-header p { font-size: 12px; color: #888; }
+    .client-list { display: flex; flex-direction: column; gap: 10px; max-height: 75vh; overflow-y: auto; padding-right: 4px; }
+    .client-card { display: flex; justify-content: space-between; align-items: center; background: #141414; border: 1px solid #242424; padding: 14px 16px; border-radius: 12px; text-decoration: none; color: #fff; transition: 0.2s; }
+    .client-card:active { background: #1f1f1f; border-color: #d4af37; }
+    .client-meta { display: flex; flex-direction: column; gap: 3px; }
+    .client-id { font-size: 14px; font-weight: 700; color: #fff; }
+    .client-business { font-size: 12px; color: #d4af37; }
+    .status-tag { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+    .status-active { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+    .status-empty { background: rgba(255, 255, 255, 0.05); color: #888; border: 1px solid #333; }
+
+    /* Profile UI */
+    .cover-box { width: 100%; height: 160px; background-color: #1a1a1a; background-size: cover; background-position: center; border-radius: 14px; }
     .avatar-wrapper { display: flex; justify-content: center; margin-top: -65px; margin-bottom: 12px; }
     .avatar-box { width: 125px; height: 125px; border-radius: 28px; border: 2.5px solid #d4af37; background-color: #121212; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.8); }
     .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -18,8 +37,8 @@
     .profile-badge { display: inline-block; padding: 4px 14px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 20px; color: #d4af37; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
     .profile-name { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 20px; }
     .section-title { font-size: 12px; font-weight: 700; color: #888888; text-transform: uppercase; margin: 18px 20px 8px; text-align: center; }
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 5px; }
-    .btn-full { padding: 0 16px; margin-bottom: 5px; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; margin-bottom: 5px; }
+    .btn-full { padding: 0 10px; margin-bottom: 5px; }
     .action-card { display: flex; align-items: center; gap: 10px; background-color: #141414; border: 1px solid #242424; padding: 12px 14px; border-radius: 14px; text-decoration: none; color: #ffffff; }
     .action-card i { font-size: 22px; width: 30px; text-align: center; }
     .action-text { display: flex; flex-direction: column; overflow: hidden; }
@@ -31,36 +50,53 @@
     .c-ig { color: #e1306c; border-color: rgba(225, 48, 108, 0.2); }
     .c-fb { color: #1877f2; border-color: rgba(24, 119, 242, 0.2); }
     .c-tt { color: #ffffff; border-color: rgba(255, 255, 255, 0.2); }
-    .form-container { display: block; padding: 20px 10px; width: 100%; }
-    .form-title { font-size: 22px; font-weight: 700; color: #d4af37; margin-bottom: 20px; text-align: center; }
+    .edit-footer { text-align: center; margin-top: 30px; }
+    .btn-edit { background: none; border: none; color: #666; font-size: 12px; cursor: pointer; text-decoration: underline; }
+
+    /* Form UI */
+    .form-container { padding: 10px; width: 100%; }
+    .form-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 16px; text-align: center; }
     .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
-    .form-control { width: 100%; padding: 12px; background-color: #141414; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 15px; }
-    .btn-submit { width: 100%; padding: 14px; background-color: #d4af37; color: #000; font-size: 16px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
+    .form-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 12px; background-color: #141414; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 14px; }
+    .btn-submit { width: 100%; padding: 14px; background-color: #d4af37; color: #000; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- واجهة الاستمارة: كتظهر مباشرة أول ما يتحل السيت -->
-  <div class="form-container" id="formView">
-    <h2 class="form-title" id="formHeader">Activer ce Stand</h2>
+  <!-- 1. لوحة التحكم: قائمة 50 كليان -->
+  <div id="dashView" style="display: none;">
+    <div class="dash-header">
+      <h1><i class="fas fa-qrcode"></i> Stand Manager</h1>
+      <p>اختر الزبون لتعديل أو فتح البروفايل الخاص به (50 زبون)</p>
+    </div>
+    <div class="client-list" id="clientsContainer"></div>
+  </div>
+
+  <!-- 2. استمارة التفعيل -->
+  <div id="formView" style="display: none;" class="form-container">
+    <div class="top-nav">
+      <button class="btn-back" onclick="goToDashboard()"><i class="fas fa-arrow-left"></i> Retour Liste</button>
+      <span id="currentEditingId" style="color: #d4af37; font-weight: 700; font-size: 13px;"></span>
+    </div>
+    <h2 class="form-title" id="formTitle">Configuration du Stand</h2>
     <form id="standForm">
       <div class="form-group">
         <label>Nom complet ou commerce</label>
-        <input type="text" class="form-control" id="inName" required placeholder="Ex. Chouaib Moda" />
+        <input type="text" class="form-control" id="inName" required placeholder="Ex. Boutique Faiz" />
       </div>
       <div class="form-group">
         <label>Secteur d'activité</label>
-        <input type="text" class="form-control" id="inProf" placeholder="Ex. MODE / VÊTEMENTS" />
+        <input type="text" class="form-control" id="inProf" placeholder="Ex. Mode / Vêtements" />
       </div>
       <div class="form-group">
-        <label>Lien Photo Logo / Profil (URL)</label>
+        <label>Lien Photo Logo (URL)</label>
         <input type="url" class="form-control" id="inAvatar" placeholder="https://..." />
       </div>
       <div class="form-group">
-        <label>Lien Image de Couverture (URL)</label>
+        <label>Lien Image Couverture (URL)</label>
         <input type="url" class="form-control" id="inCover" placeholder="https://..." />
       </div>
       <div class="form-group">
@@ -87,16 +123,17 @@
         <label>Lien Google Maps</label>
         <input type="url" class="form-control" id="inMaps" placeholder="https://maps.google.com/..." />
       </div>
-      <div class="form-group">
-        <label>Code PIN (4 chiffres)</label>
-        <input type="password" maxlength="4" class="form-control" id="inPin" required placeholder="1234" />
-      </div>
-      <button type="submit" class="btn-submit" id="btnSubmit">Enregistrer le Stand</button>
+      <button type="submit" class="btn-submit">Sauvegarder les données</button>
     </form>
   </div>
 
-  <!-- واجهة البروفايل بعد الحفظ -->
+  <!-- 3. صفحة البروفايل الرقمي -->
   <div id="profileView" style="display: none;">
+    <div class="top-nav">
+      <button class="btn-back" onclick="goToDashboard()"><i class="fas fa-th-list"></i> Tous les stands</button>
+      <button class="btn-back" onclick="openEditCurrent()"><i class="fas fa-pen"></i> Modifier</button>
+    </div>
+
     <div class="cover-box" id="dispCover"></div>
     <div class="avatar-wrapper">
       <div class="avatar-box">
@@ -107,6 +144,7 @@
       <div class="profile-badge" id="dispProf">SECTEUR</div>
       <h1 class="profile-name" id="dispName">Nom</h1>
     </div>
+
     <div class="btn-grid" id="directGrid"></div>
     <div id="socialSection">
       <div class="section-title">RÉSEAUX SOCIAUX</div>
@@ -124,59 +162,110 @@
 </div>
 
 <script>
-  const SUPABASE_URL = "https://fvkezmpqjztbaeggeiky.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2a2V6bXBxanp0YmFlZ2dlaWt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NDkyOTIsImV4cCI6MjEwNTIyNTI5Mn0.UiH8oBV8YmMziGmFK-dIr_qC2FVnVv97Oi_5195RX0g";
-  
-  let supabase = null;
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  } catch(e) { console.log(e); }
-
   const urlParams = new URLSearchParams(window.location.search);
-  const standId = urlParams.get('id') || 'client01';
+  const standId = urlParams.get('id');
 
-  async function loadData() {
-    if (!supabase) return;
-    try {
-      const { data } = await supabase.from('cards').select('*').eq('id', standId).maybeSingle();
-      if (data && data.is_active) {
-        showProfile(data);
-      }
-    } catch(e) { console.log(e); }
+  function init() {
+    if (!standId) {
+      renderDashboard();
+    } else {
+      loadClient(standId);
+    }
+  }
+
+  function renderDashboard() {
+    document.getElementById('dashView').style.display = 'block';
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('profileView').style.display = 'none';
+
+    const container = document.getElementById('clientsContainer');
+    container.innerHTML = '';
+
+    for (let i = 1; i <= 50; i++) {
+      const idStr = 'client' + (i < 10 ? '0' + i : i);
+      const dataStr = localStorage.getItem('stand_' + idStr);
+      const data = dataStr ? JSON.parse(dataStr) : null;
+      const isAct = data && data.name;
+
+      const card = document.createElement('a');
+      card.className = 'client-card';
+      card.href = '?id=' + idStr;
+      card.innerHTML = `
+        <div class="client-meta">
+          <span class="client-id"><i class="fas fa-id-badge"></i> Stand #${i < 10 ? '0' + i : i}</span>
+          <span class="client-business">${isAct ? data.name : 'Non configuré'}</span>
+        </div>
+        <span class="status-tag ${isAct ? 'status-active' : 'status-empty'}">
+          ${isAct ? 'Actif' : 'Nouveau'}
+        </span>
+      `;
+      container.appendChild(card);
+    }
+  }
+
+  function loadClient(id) {
+    const dataStr = localStorage.getItem('stand_' + id);
+    if (dataStr) {
+      showProfile(JSON.parse(dataStr));
+    } else {
+      openForm(id);
+    }
+  }
+
+  function openForm(id, existingData = null) {
+    document.getElementById('dashView').style.display = 'none';
+    document.getElementById('profileView').style.display = 'none';
+    document.getElementById('formView').style.display = 'block';
+
+    document.getElementById('currentEditingId').textContent = 'Stand: ' + id;
+    document.getElementById('formTitle').textContent = existingData ? "Modifier le Stand" : "Activer le Stand";
+
+    document.getElementById('inName').value = existingData ? (existingData.name || '') : '';
+    document.getElementById('inProf').value = existingData ? (existingData.prof || '') : '';
+    document.getElementById('inAvatar').value = existingData ? (existingData.avatar || '') : '';
+    document.getElementById('inCover').value = existingData ? (existingData.cover || '') : '';
+    document.getElementById('inPhone').value = existingData ? (existingData.phone || '') : '';
+    document.getElementById('inWa').value = existingData ? (existingData.wa || '') : '';
+    document.getElementById('inIg').value = existingData ? (existingData.ig || '') : '';
+    document.getElementById('inFb').value = existingData ? (existingData.fb || '') : '';
+    document.getElementById('inTt').value = existingData ? (existingData.tt || '') : '';
+    document.getElementById('inMaps').value = existingData ? (existingData.maps || '') : '';
+  }
+
+  function openEditCurrent() {
+    const dataStr = localStorage.getItem('stand_' + standId);
+    openForm(standId, dataStr ? JSON.parse(dataStr) : null);
   }
 
   function showProfile(d) {
+    document.getElementById('dashView').style.display = 'none';
     document.getElementById('formView').style.display = 'none';
     document.getElementById('profileView').style.display = 'block';
 
-    document.getElementById('dispName').textContent = d.full_name || '';
-    document.getElementById('dispProf').textContent = d.profession || '';
-    if (d.avatar_url) document.getElementById('dispAvatar').src = d.avatar_url;
-    if (d.cover_url) document.getElementById('dispCover').style.backgroundImage = `url('${d.cover_url}')`;
+    document.getElementById('dispName').textContent = d.name || '';
+    document.getElementById('dispProf').textContent = d.prof || '';
+    if (d.avatar) document.getElementById('dispAvatar').src = d.avatar;
+    if (d.cover) document.getElementById('dispCover').style.backgroundImage = `url('${d.cover}')`;
 
     const dGrid = document.getElementById('directGrid');
     const sGrid = document.getElementById('socialGrid');
     const sFull = document.getElementById('socialFull');
     dGrid.innerHTML = ''; sGrid.innerHTML = ''; sFull.innerHTML = '';
 
-    const phone = (d.phones && d.phones[0]) || '';
-    const wa = (d.whatsapps && d.whatsapps[0]) || '';
-
-    if (phone) {
-      dGrid.innerHTML += `<a class="action-card c-call" href="tel:${phone}"><i class="fas fa-phone-alt"></i><div class="action-text"><div class="action-title">Appeler</div><div class="action-sub">${phone}</div></div></a>`;
+    if (d.phone) {
+      dGrid.innerHTML += `<a class="action-card c-call" href="tel:${d.phone}"><i class="fas fa-phone-alt"></i><div class="action-text"><div class="action-title">Appeler</div><div class="action-sub">${d.phone}</div></div></a>`;
     }
-    if (wa) {
-      dGrid.innerHTML += `<a class="action-card c-wa" href="https://wa.me/${wa.replace(/[^0-9]/g,'')}"><i class="fab fa-whatsapp"></i><div class="action-text"><div class="action-title">WhatsApp</div><div class="action-sub">Discuter</div></div></a>`;
+    if (d.wa) {
+      dGrid.innerHTML += `<a class="action-card c-wa" href="https://wa.me/${d.wa.replace(/[^0-9]/g,'')}"><i class="fab fa-whatsapp"></i><div class="action-text"><div class="action-title">WhatsApp</div><div class="action-sub">Discuter</div></div></a>`;
     }
-    if (d.instagram) {
-      sGrid.innerHTML += `<a class="action-card c-ig" target="_blank" href="${d.instagram}"><i class="fab fa-instagram"></i><div class="action-text"><div class="action-title">Instagram</div><div class="action-sub">Suivre</div></div></a>`;
+    if (d.ig) {
+      sGrid.innerHTML += `<a class="action-card c-ig" target="_blank" href="${d.ig}"><i class="fab fa-instagram"></i><div class="action-text"><div class="action-title">Instagram</div><div class="action-sub">Suivre</div></div></a>`;
     }
-    const fb = (d.facebook && d.facebook[0]) || '';
-    if (fb) {
-      sGrid.innerHTML += `<a class="action-card c-fb" target="_blank" href="${fb}"><i class="fab fa-facebook-f"></i><div class="action-text"><div class="action-title">Facebook</div><div class="action-sub">Page</div></div></a>`;
+    if (d.fb) {
+      sGrid.innerHTML += `<a class="action-card c-fb" target="_blank" href="${d.fb}"><i class="fab fa-facebook-f"></i><div class="action-text"><div class="action-title">Facebook</div><div class="action-sub">Page</div></div></a>`;
     }
-    if (d.tiktok) {
-      sFull.innerHTML += `<a class="action-card c-tt" target="_blank" href="${d.tiktok}"><i class="fab fa-tiktok"></i><div class="action-text"><div class="action-title">TikTok</div><div class="action-sub">Vidéos</div></div></a>`;
+    if (d.tt) {
+      sFull.innerHTML += `<a class="action-card c-tt" target="_blank" href="${d.tt}"><i class="fab fa-tiktok"></i><div class="action-text"><div class="action-title">TikTok</div><div class="action-sub">Vidéos</div></div></a>`;
     }
     if (d.maps) {
       const mapsBtn = document.getElementById('linkMaps');
@@ -185,47 +274,29 @@
     }
   }
 
-  document.getElementById('standForm').onsubmit = async (e) => {
+  function goToDashboard() {
+    window.location.href = window.location.pathname;
+  }
+
+  document.getElementById('standForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const btn = document.getElementById('btnSubmit');
-    btn.textContent = "Enregistrement en cours...";
-    btn.disabled = true;
-
-    const phone = document.getElementById('inPhone').value.trim();
-    const wa = document.getElementById('inWa').value.trim();
-    const fb = document.getElementById('inFb').value.trim();
-
-    const record = {
-      id: standId,
-      full_name: document.getElementById('inName').value.trim(),
-      profession: document.getElementById('inProf').value.trim(),
-      avatar_url: document.getElementById('inAvatar').value.trim(),
-      cover_url: document.getElementById('inCover').value.trim(),
-      phones: phone ? [phone] : [],
-      whatsapps: wa ? [wa] : [],
-      facebook: fb ? [fb] : [],
-      instagram: document.getElementById('inIg').value.trim(),
-      tiktok: document.getElementById('inTt').value.trim(),
-      maps: document.getElementById('inMaps').value.trim(),
-      pin: document.getElementById('inPin').value.trim(),
-      is_active: true
+    const data = {
+      name: document.getElementById('inName').value.trim(),
+      prof: document.getElementById('inProf').value.trim(),
+      avatar: document.getElementById('inAvatar').value.trim(),
+      cover: document.getElementById('inCover').value.trim(),
+      phone: document.getElementById('inPhone').value.trim(),
+      wa: document.getElementById('inWa').value.trim(),
+      ig: document.getElementById('inIg').value.trim(),
+      fb: document.getElementById('inFb').value.trim(),
+      tt: document.getElementById('inTt').value.trim(),
+      maps: document.getElementById('inMaps').value.trim()
     };
+    localStorage.setItem('stand_' + standId, JSON.stringify(data));
+    showProfile(data);
+  });
 
-    if (supabase) {
-      const { error } = await supabase.from('cards').upsert(record);
-      if (error) {
-        alert("Erreur base: " + error.message);
-      } else {
-        showProfile(record);
-      }
-    } else {
-      showProfile(record);
-    }
-    btn.textContent = "Enregistrer le Stand";
-    btn.disabled = false;
-  };
-
-  loadData();
+  init();
 </script>
 </body>
 </html>
