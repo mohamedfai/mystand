@@ -84,7 +84,7 @@
 <div class="container">
   <div id="loader" class="loader">⚡ Chargement rapide...</div>
 
-  <!-- Dashboard 50 Stands -->
+  <!-- Dashboard -->
   <section id="dashboard" class="hidden">
     <div class="dash-header">
       <h1 class="dash-title">Tableau de Bord — 50 Stands</h1>
@@ -259,6 +259,25 @@
   let base64Logo = "";
   let base64Cover = "";
 
+  // حساب الرقم السري التلقائي من 2001 إلى 2050
+  function getExpectedPin(id) {
+    const num = parseInt(id.replace('client', ''), 10);
+    if (!isNaN(num)) {
+      return (2000 + num).toString();
+    }
+    return "2026";
+  }
+
+  window.verifyAndEdit = function(id) {
+    const expectedPin = getExpectedPin(id);
+    const entered = prompt(`Entrez le code PIN pour configurer ${id} :`);
+    if (entered === expectedPin) {
+      window.location.href = `${window.location.origin}${window.location.pathname}?id=${id}&edit=true&auth=ok`;
+    } else if (entered !== null) {
+      alert("❌ Code PIN incorrect ! Accès refusé.");
+    }
+  };
+
   window.addField = function(wrapperId, type, placeholder, value = '') {
     const wrap = document.getElementById(wrapperId);
     const row = document.createElement('div');
@@ -300,7 +319,20 @@
     } catch(e) { console.error(e); }
 
     if (isEditParam) {
-      showEdit();
+      // حماية صفحة الإعداد بالرقم السري
+      const auth = params.get('auth');
+      const expectedPin = getExpectedPin(clientId);
+      if (auth === 'ok') {
+        showEdit();
+      } else {
+        const entered = prompt(`Entrez le code PIN pour configurer ${clientId} :`);
+        if (entered === expectedPin) {
+          showEdit();
+        } else {
+          alert("❌ Code PIN incorrect !");
+          window.location.href = `${window.location.origin}${window.location.pathname}?id=${clientId}`;
+        }
+      }
     } else {
       renderProfile();
       show('profileView');
@@ -315,7 +347,6 @@
     document.getElementById(id).classList.remove('hidden');
   }
 
-  // إنشاء اللائحة فوراً وبدون استدعاءات ثقيلة لقاعدة البيانات
   function renderDashboardFast() {
     const list = document.getElementById('clientsContainer');
     list.innerHTML = '';
@@ -325,7 +356,6 @@
     for (let i = 1; i <= 50; i++) {
       const cId = 'client' + String(i).padStart(2, '0');
       const cardUrl = `${origin}?id=${cId}`;
-      const editUrl = `${origin}?id=${cId}&edit=true`;
 
       html += `
         <div class="client-row">
@@ -335,7 +365,7 @@
           <div class="row-actions">
             <button type="button" class="btn-qr" onclick="openQrModal('${cId}', '${cardUrl}')">▦ QR</button>
             <a class="btn-action" href="${cardUrl}">Voir</a>
-            <a class="btn-action" href="${editUrl}">Éditer</a>
+            <button type="button" class="btn-action" onclick="verifyAndEdit('${cId}')">Éditer 🔒</button>
           </div>
         </div>
       `;
@@ -603,7 +633,6 @@
     lines.push(`FN:${fullName}`);
 
     if (d.activity) {
-      lines.push(`ORG:${d.activity}`);
       lines.push(`TITLE:${d.activity}`);
     }
 
@@ -615,24 +644,22 @@
     });
 
     let itemIndex = 1;
+
     instas.forEach((ins, i) => {
       lines.push(`item${itemIndex}.URL:${ins}`);
       lines.push(`item${itemIndex}.X-ABLabel:Instagram ${instas.length > 1 ? (i + 1) : ''}`);
-      lines.push(`X-SOCIALPROFILE;type=instagram:${ins}`);
       itemIndex++;
     });
 
     fbs.forEach((f, i) => {
       lines.push(`item${itemIndex}.URL:${f}`);
       lines.push(`item${itemIndex}.X-ABLabel:Facebook ${fbs.length > 1 ? (i + 1) : ''}`);
-      lines.push(`X-SOCIALPROFILE;type=facebook:${f}`);
       itemIndex++;
     });
 
     tiktoks.forEach((tk, i) => {
       lines.push(`item${itemIndex}.URL:${tk}`);
       lines.push(`item${itemIndex}.X-ABLabel:TikTok ${tiktoks.length > 1 ? (i + 1) : ''}`);
-      lines.push(`X-SOCIALPROFILE;type=tiktok:${tk}`);
       itemIndex++;
     });
 
