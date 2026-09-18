@@ -20,7 +20,7 @@
     .container { width: 100%; max-width: 420px; padding-bottom: 25px; }
     .hidden { display: none !important; }
 
-    /* Dashboard UI */
+    /* Dashboard */
     .dash-header { text-align: center; margin-bottom: 20px; }
     .dash-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
     .dash-sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
@@ -36,7 +36,7 @@
     .btn-qr { background: #222; border: 1px solid #444; color: #fff; padding: 6px 8px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-qr:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* QR Modal Popup */
+    /* QR Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
     .modal-box { background: #161616; border: 1px solid var(--gold); border-radius: 20px; padding: 24px; text-align: center; max-width: 320px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
     .modal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 12px; }
@@ -64,7 +64,7 @@
     .btn-txt h4 { font-size: 13px; font-weight: 700; line-height: 1.2; }
     .btn-txt p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    /* Dynamic Form */
+    /* Form UI */
     .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
     .form-title { font-size: 18px; font-weight: 700; color: var(--gold); text-align: center; margin-bottom: 16px; }
     .form-group { margin-bottom: 14px; }
@@ -111,12 +111,27 @@
       <p id="viewDesc" class="desc"></p>
     </div>
 
-    <!-- Enregistrer le contact -->
+    <!-- Enregistrer le contact (Nom, Numéros, Infos, Logo) -->
     <button id="btnSaveVcard" class="btn-vcard">
       💾 Enregistrer le contact
     </button>
 
-    <!-- Google Review -->
+    <!-- Appeler & WhatsApp (2 colonnes) -->
+    <div id="contactGrid" class="grid"></div>
+
+    <!-- Instagram & Facebook (2 colonnes) -->
+    <div id="socialGrid" class="grid"></div>
+
+    <!-- TikToks -->
+    <div id="tiktokContainer"></div>
+
+    <!-- Site Web (au-dessus de Maps) -->
+    <div id="websiteContainer"></div>
+
+    <!-- Google Maps -->
+    <div id="mapsContainer"></div>
+
+    <!-- Avis Google (en-dessous de Maps) -->
     <a id="btnReview" href="#" target="_blank" class="btn-box full hidden" style="border-color: rgba(251,188,4,0.4); background: rgba(251,188,4,0.06);">
       <div class="btn-icon" style="color:#FBBC04;">
         <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -126,14 +141,9 @@
         <p>Laissez-nous 5 étoiles ⭐</p>
       </div>
     </a>
-
-    <!-- Dynamic Contact Lists -->
-    <div id="contactGrid" class="grid"></div>
-    <div id="socialGrid" class="grid"></div>
-    <div id="fullButtons"></div>
   </section>
 
-  <!-- Edit Form -->
+  <!-- Form Section -->
   <section id="editFormSection" class="hidden">
     <div class="form-card">
       <h2 class="form-title">Configuration du Stand (<span id="formClientId"></span>)</h2>
@@ -150,11 +160,8 @@
           <div class="group-header"><label>Description courte</label></div>
           <div class="input-row"><input type="text" id="inDesc" placeholder="Ex: Bienvenue dans notre boutique"></div>
         </div>
-        <div class="form-group">
-          <div class="group-header"><label>Lien Avis Google (Google Review)</label></div>
-          <div class="input-row"><input type="url" id="inReview" placeholder="https://g.page/r/..."></div>
-        </div>
 
+        <!-- Téléphones [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Téléphone(s)</label>
@@ -163,6 +170,7 @@
           <div id="wrapPhones" class="inputs-wrapper"></div>
         </div>
 
+        <!-- WhatsApps [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>WhatsApp(s) (avec indicatif)</label>
@@ -171,6 +179,7 @@
           <div id="wrapWhatsapps" class="inputs-wrapper"></div>
         </div>
 
+        <!-- Instagram [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Instagram(s)</label>
@@ -179,6 +188,7 @@
           <div id="wrapInstas" class="inputs-wrapper"></div>
         </div>
 
+        <!-- Facebook [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Facebook(s)</label>
@@ -187,6 +197,7 @@
           <div id="wrapFbs" class="inputs-wrapper"></div>
         </div>
 
+        <!-- TikTok [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>TikTok(s)</label>
@@ -195,12 +206,28 @@
           <div id="wrapTiktoks" class="inputs-wrapper"></div>
         </div>
 
+        <!-- Site Web [+] -->
+        <div class="form-group">
+          <div class="group-header">
+            <label>Site Web</label>
+            <button type="button" class="btn-add" onclick="addField('wrapWebsites', 'url', 'https://mon-site.com')">+ Ajouter</button>
+          </div>
+          <div id="wrapWebsites" class="inputs-wrapper"></div>
+        </div>
+
+        <!-- Google Maps [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Google Maps</label>
             <button type="button" class="btn-add" onclick="addField('wrapMaps', 'url', 'https://maps.app.goo.gl/...')">+ Ajouter</button>
           </div>
           <div id="wrapMaps" class="inputs-wrapper"></div>
+        </div>
+
+        <!-- Google Review -->
+        <div class="form-group">
+          <div class="group-header"><label>Lien Avis Google (Google Review)</label></div>
+          <div class="input-row"><input type="url" id="inReview" placeholder="https://g.page/r/..."></div>
         </div>
 
         <div class="form-group">
@@ -348,12 +375,10 @@
     }
   }
 
-  // QR Modal logic
   window.openQrModal = function(id, url) {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
     document.getElementById('qrModalTitle').textContent = `QR Code — ${id}`;
-    const img = document.getElementById('qrModalImg');
-    img.src = qrUrl;
+    document.getElementById('qrModalImg').src = qrUrl;
 
     document.getElementById('btnDownloadQr').onclick = async () => {
       try {
@@ -370,7 +395,6 @@
         window.open(qrUrl, '_blank');
       }
     };
-
     document.getElementById('qrModal').classList.remove('hidden');
   };
 
@@ -409,15 +433,7 @@
       document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
     }
 
-    const btnRev = document.getElementById('btnReview');
-    if (d.review) {
-      btnRev.href = d.review;
-      btnRev.classList.remove('hidden');
-    } else {
-      btnRev.classList.add('hidden');
-    }
-
-    // Grid Contacts
+    // Grid: Appeler + WhatsApp
     const cGrid = document.getElementById('contactGrid');
     cGrid.innerHTML = '';
     const phones = Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []);
@@ -441,7 +457,7 @@
       `;
     });
 
-    // Socials
+    // Grid: Instagram + Facebook
     const sGrid = document.getElementById('socialGrid');
     sGrid.innerHTML = '';
     const instas = Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []);
@@ -465,14 +481,12 @@
       `;
     });
 
-    // Full buttons
-    const fBtns = document.getElementById('fullButtons');
-    fBtns.innerHTML = '';
+    // TikToks
+    const tkWrap = document.getElementById('tiktokContainer');
+    tkWrap.innerHTML = '';
     const tiktoks = Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []);
-    const maps = Array.isArray(d.mapsList) ? d.mapsList : (d.maps ? [d.maps] : []);
-
     tiktoks.forEach((tk, idx) => {
-      fBtns.innerHTML += `
+      tkWrap.innerHTML += `
         <a href="${tk}" target="_blank" class="btn-box full">
           <div class="btn-icon" style="color:#fff;"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 2.89 3.46 2.71 1.07-.06 2.07-.64 2.62-1.57.43-.69.63-1.5.62-2.31.05-4.88.01-9.76.02-14.64z"/></svg></div>
           <div class="btn-txt"><h4>TikTok ${tiktoks.length > 1 ? (idx + 1) : ''}</h4><p>Vidéos</p></div>
@@ -480,14 +494,40 @@
       `;
     });
 
+    // Site Web (au-dessus de Maps)
+    const webWrap = document.getElementById('websiteContainer');
+    webWrap.innerHTML = '';
+    const websites = Array.isArray(d.websites) ? d.websites : (d.website ? [d.website] : []);
+    websites.forEach((web, idx) => {
+      webWrap.innerHTML += `
+        <a href="${web}" target="_blank" class="btn-box full">
+          <div class="btn-icon" style="color:var(--gold);"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+          <div class="btn-txt"><h4>Site Web ${websites.length > 1 ? (idx + 1) : ''}</h4><p>Visiter notre site</p></div>
+        </a>
+      `;
+    });
+
+    // Google Maps
+    const mapsWrap = document.getElementById('mapsContainer');
+    mapsWrap.innerHTML = '';
+    const maps = Array.isArray(d.mapsList) ? d.mapsList : (d.maps ? [d.maps] : []);
     maps.forEach((m, idx) => {
-      fBtns.innerHTML += `
+      mapsWrap.innerHTML += `
         <a href="${m}" target="_blank" class="btn-box full">
           <div class="btn-icon" style="color:#EA4335;"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg></div>
           <div class="btn-txt"><h4>Google Maps ${maps.length > 1 ? (idx + 1) : ''}</h4><p>Itinéraire</p></div>
         </a>
       `;
     });
+
+    // Avis Google (en bas de Maps)
+    const btnRev = document.getElementById('btnReview');
+    if (d.review) {
+      btnRev.href = d.review;
+      btnRev.classList.remove('hidden');
+    } else {
+      btnRev.classList.add('hidden');
+    }
   }
 
   function showEdit() {
@@ -503,6 +543,7 @@
     setFieldValues('wrapInstas', 'url', 'https://instagram.com/...', Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []));
     setFieldValues('wrapFbs', 'url', 'https://facebook.com/...', Array.isArray(d.fbs) ? d.fbs : (d.facebook ? [d.facebook] : []));
     setFieldValues('wrapTiktoks', 'url', 'https://tiktok.com/@...', Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []));
+    setFieldValues('wrapWebsites', 'url', 'https://mon-site.com', Array.isArray(d.websites) ? d.websites : (d.website ? [d.website] : []));
     setFieldValues('wrapMaps', 'url', 'https://maps.app.goo.gl/...', Array.isArray(d.mapsList) ? d.mapsList : (d.maps ? [d.maps] : []));
 
     base64Logo = d.logo || "";
@@ -563,6 +604,7 @@
       instas: getFieldValues('wrapInstas'),
       fbs: getFieldValues('wrapFbs'),
       tiktoks: getFieldValues('wrapTiktoks'),
+      websites: getFieldValues('wrapWebsites'),
       mapsList: getFieldValues('wrapMaps'),
       logo: base64Logo,
       cover: base64Cover
@@ -578,16 +620,42 @@
     }
   });
 
+  // حفظ جهة الاتصال الكاملة مع الصورة المدمجة
   document.getElementById('btnSaveVcard').addEventListener('click', () => {
     const d = currentData || {};
     const name = d.name || 'Client';
     const phones = Array.isArray(d.phones) && d.phones.length > 0 ? d.phones : (d.phone ? [d.phone] : []);
+    const websites = Array.isArray(d.websites) && d.websites.length > 0 ? d.websites : (d.website ? [d.website] : []);
     
-    let telEntries = '';
-    phones.forEach(p => { telEntries += `TEL;TYPE=CELL:${p}\n`; });
+    let vcardParts = [];
+    vcardParts.push("BEGIN:VCARD");
+    vcardParts.push("VERSION:3.0");
+    vcardParts.push(`FN:${name}`);
+    if (d.activity) vcardParts.push(`TITLE:${d.activity}`);
+    if (d.desc) vcardParts.push(`NOTE:${d.desc}`);
 
-    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\n${telEntries}NOTE:${d.desc || ''}\nEND:VCARD`;
-    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8;' });
+    // Phones
+    phones.forEach(p => {
+      vcardParts.push(`TEL;TYPE=CELL:${p}`);
+    });
+
+    // Websites
+    websites.forEach(w => {
+      vcardParts.push(`URL:${w}`);
+    });
+
+    // Photo Embed (Base64 JPEG)
+    if (d.logo && d.logo.startsWith('data:image')) {
+      const pureBase64 = d.logo.split(',')[1];
+      if (pureBase64) {
+        vcardParts.push(`PHOTO;ENCODING=b;TYPE=JPEG:${pureBase64}`);
+      }
+    }
+
+    vcardParts.push("END:VCARD");
+
+    const vcardString = vcardParts.join("\r\n");
+    const blob = new Blob([vcardString], { type: 'text/vcard;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
