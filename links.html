@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gestion QR Dynamiques</title>
+  <style>
+    :root { --gold: #d4af37; --bg: #0c0c0c; --card: #161616; --border: #262626; --text: #fff; --muted: #888; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 14px; display: flex; justify-content: center; min-height: 100vh; }
+    .wrap { width: 100%; max-width: 450px; }
+    .hidden { display: none !important; }
+    
+    .auth-card { background: var(--card); border: 1px solid var(--gold); border-radius: 16px; padding: 30px 20px; text-align: center; margin-top: 50px; }
+    .auth-input { width: 180px; padding: 12px; text-align: center; font-size: 22px; letter-spacing: 6px; background: #000; border: 1px solid var(--border); border-radius: 12px; color: #fff; margin: 15px auto; display: block; outline: none; }
+    .btn-gold { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 180px; }
+
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { font-size: 20px; color: var(--gold); }
+    .header p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .stand-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .stand-head { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; }
+    .stand-inputs { display: flex; gap: 6px; }
+    .input-link { flex: 1; background: #000; border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 8px 10px; font-size: 12px; outline: none; }
+    .btn-save { background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .btn-dl-qr { background: #222; border: 1px solid var(--border); color: #fff; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="authBox" class="auth-card">
+    <h2 style="color:var(--gold);">🔒 Accès Gestionnaire</h2>
+    <p style="font-size:12px; color:var(--muted); margin-top:6px;">Entrez le PIN pour gérer les 50 QR Codes</p>
+    <input type="password" id="passInput" class="auth-input" maxlength="6" placeholder="••••">
+    <button id="btnLogin" class="btn-gold">Entrer</button>
+  </div>
+
+  <div id="mainUI" class="hidden">
+    <div class="header">
+      <h1>Gestion des 50 QR Dynamiques</h1>
+      <p>Modifiez le lien de chaque stand à tout moment</p>
+    </div>
+    <div id="standsList"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
+    authDomain: "cartes-clients-aa64f.firebaseapp.com",
+    projectId: "cartes-clients-aa64f",
+    storageBucket: "cartes-clients-aa64f.firebasestorage.app",
+    messagingSenderId: "469049575960",
+    appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const PIN = "2026";
+  const authBox = document.getElementById('authBox');
+  const mainUI = document.getElementById('mainUI');
+
+  document.getElementById('btnLogin').onclick = () => {
+    if (document.getElementById('passInput').value.trim() === PIN) {
+      authBox.classList.add('hidden');
+      mainUI.classList.remove('hidden');
+      loadStands();
+    } else {
+      alert("Mot de passe incorrect");
+    }
+  };
+
+  function loadStands() {
+    const list = document.getElementById('standsList');
+    list.innerHTML = '';
+    const basePath = window.location.origin + window.location.pathname.replace('links.html', 'go.html');
+
+    for (let i = 1; i <= 50; i++) {
+      const sId = 'stand' + String(i).padStart(2, '0');
+      const targetGoUrl = `${basePath}?id=${sId}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(targetGoUrl)}`;
+
+      const card = document.createElement('div');
+      card.className = 'stand-item';
+      card.innerHTML = `
+        <div class="stand-head">
+          <span>📦 Stand ${String(i).padStart(2, '0')}</span>
+          <a href="${qrApiUrl}" target="_blank" download="QR_${sId}.png" class="btn-dl-qr">📥 Télécharger QR</a>
+        </div>
+        <div class="stand-inputs">
+          <input type="url" id="input_${sId}" class="input-link" placeholder="Lien (Maps, Instagram, Avis...)">
+          <button class="btn-save" id="btn_${sId}">Sauvegarder</button>
+        </div>
+      `;
+      list.appendChild(card);
+
+      getDoc(doc(db, "dynamic_stands", sId)).then(snap => {
+        if (snap.exists() && snap.data().targetUrl) {
+          document.getElementById(`input_${sId}`).value = snap.data().targetUrl;
+        }
+      });
+
+      document.getElementById(`btn_${sId}`).onclick = async () => {
+        const urlVal = document.getElementById(`input_${sId}`).value.trim();
+        const b = document.getElementById(`btn_${sId}`);
+        b.textContent = '...';
+        await setDoc(doc(db, "dynamic_stands", sId), { targetUrl: urlVal });
+        b.textContent = 'OK ✓';
+        setTimeout(() => b.textContent = 'Sauvegarder', 1500);
+      };
+    }
+  }
+</script>
+</body>
+</html>
