@@ -1,255 +1,210 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Stand</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بطاقة الزبون الذكية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0c0c0c; color: #fff; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
-    .container { width: 100%; max-width: 420px; padding-bottom: 30px; }
-    
-    /* Nav */
-    .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .btn-nav { background: #1a1a1a; border: 1px solid #333; color: #d4af37; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-
-    /* Dashboard List */
-    .title { text-align: center; color: #d4af37; font-size: 20px; font-weight: bold; margin-bottom: 4px; }
-    .subtitle { text-align: center; color: #777; font-size: 12px; margin-bottom: 15px; }
-    .list { display: flex; flex-direction: column; gap: 8px; }
-    .client-row { display: flex; justify-content: space-between; align-items: center; background: #161616; border: 1px solid #222; padding: 12px 14px; border-radius: 10px; text-decoration: none; color: #fff; }
-    .client-row:active { background: #222; }
-    .badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
-    .b-act { background: #14351e; color: #2ecc71; }
-    .b-new { background: #222; color: #777; }
-
-    /* Profile UI */
-    .cover { width: 100%; height: 140px; background: #1a1a1a; background-size: cover; background-position: center; border-radius: 12px; }
-    .avatar-wrap { display: flex; justify-content: center; margin-top: -55px; margin-bottom: 10px; }
-    .avatar { width: 110px; height: 110px; border-radius: 24px; border: 2.5px solid #d4af37; background: #141414; overflow: hidden; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .meta { text-align: center; margin-bottom: 15px; }
-    .tag { display: inline-block; background: rgba(212,175,55,0.15); border: 1px solid #d4af37; color: #d4af37; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 6px; }
-    .name { font-size: 22px; font-weight: 800; }
-
-    /* Action Buttons */
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    .btn-act { display: flex; align-items: center; gap: 10px; background: #161616; border: 1px solid #262626; padding: 12px; border-radius: 12px; text-decoration: none; color: #fff; }
-    .btn-act:active { transform: scale(0.98); }
-    .btn-full { display: flex; align-items: center; gap: 10px; background: #161616; border: 1px solid #262626; padding: 12px; border-radius: 12px; text-decoration: none; color: #fff; margin-bottom: 8px; }
-    .btn-txt h4 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-    .btn-txt p { font-size: 10px; color: #888; }
-    .svg-icon { width: 22px; height: 22px; fill: currentColor; }
-
-    /* Form UI */
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
-    .inp { width: 100%; padding: 11px; background: #141414; border: 1px solid #282828; border-radius: 8px; color: #fff; font-size: 14px; }
-    .btn-save { width: 100%; padding: 13px; background: #d4af37; color: #000; font-size: 15px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
-<div class="container">
-
-  <!-- 1. قائمة 50 كليان (خفيفة وسريعة) -->
-  <div id="viewDash" style="display:none;">
-    <h1 class="title">Stand Manager</h1>
-    <p class="subtitle">اختر كود الستاند (50 كليان)</p>
-    <div class="list" id="dashList"></div>
+  <div id="loading" class="text-center">
+    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent mb-3"></div>
+    <p class="text-slate-400 text-sm">جاري تحميل البيانات...</p>
   </div>
 
-  <!-- 2. استمارة التفعيل -->
-  <div id="viewForm" style="display:none;">
-    <div class="nav">
-      <a class="btn-nav" href="./">← رجوع للقائمة</a>
-      <span id="standTag" style="color:#d4af37;font-weight:bold;font-size:12px;"></span>
-    </div>
-    <form id="myform">
-      <div class="form-group">
-        <label>اسم المحل / التجارة</label>
-        <input type="text" class="inp" id="fName" required placeholder="Ex. Boutique Faiz" />
+  <main id="app" class="w-full max-w-md hidden fade-in">
+    <!-- View Mode -->
+    <div id="viewMode" class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl text-center relative overflow-hidden">
+      <div class="w-24 h-24 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-4">
+        <i class="fa-solid fa-store text-3xl text-slate-950"></i>
       </div>
-      <div class="form-group">
-        <label>النشاط</label>
-        <input type="text" class="inp" id="fProf" placeholder="Ex. Mode / Café" />
-      </div>
-      <div class="form-group">
-        <label>رابط الصورة Logo (URL)</label>
-        <input type="url" class="inp" id="fAvatar" placeholder="https://..." />
-      </div>
-      <div class="form-group">
-        <label>رابط صورة الغلاف (URL)</label>
-        <input type="url" class="inp" id="fCover" placeholder="https://..." />
-      </div>
-      <div class="form-group">
-        <label>رقم الهاتف</label>
-        <input type="tel" class="inp" id="fPhone" placeholder="06XXXXXXXX" />
-      </div>
-      <div class="form-group">
-        <label>رقم الواتساب</label>
-        <input type="tel" class="inp" id="fWa" placeholder="06XXXXXXXX" />
-      </div>
-      <div class="form-group">
-        <label>رابط إنستغرام</label>
-        <input type="url" class="inp" id="fIg" placeholder="https://instagram.com/..." />
-      </div>
-      <div class="form-group">
-        <label>رابط فيسبوك</label>
-        <input type="url" class="inp" id="fFb" placeholder="https://facebook.com/..." />
-      </div>
-      <div class="form-group">
-        <label>رابط تيك توك</label>
-        <input type="url" class="inp" id="fTt" placeholder="https://tiktok.com/@..." />
-      </div>
-      <div class="form-group">
-        <label>رابط Google Maps</label>
-        <input type="url" class="inp" id="fMaps" placeholder="https://maps.google.com/..." />
-      </div>
-      <button type="submit" class="btn-save">حفظ وتفعيل الستاند</button>
-    </form>
-  </div>
+      <h1 id="viewName" class="text-2xl font-bold text-white mb-1">اسم المحل</h1>
+      <p id="viewDesc" class="text-slate-400 text-sm mb-6">وصف النشاط التجاري</p>
 
-  <!-- 3. صفحة البروفايل الرقمي -->
-  <div id="viewProf" style="display:none;">
-    <div class="nav">
-      <a class="btn-nav" href="./">← القائمة</a>
-      <button class="btn-nav" onclick="editCurrent()">تعديل ✏️</button>
+      <div class="space-y-3" id="linksContainer">
+        <a id="btnPhone" href="#" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-phone text-emerald-400"></i> اتصال هاتفياً</span>
+          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
+        </a>
+        <a id="btnWhatsapp" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 rounded-xl transition border border-emerald-500/30">
+          <span class="flex items-center gap-3"><i class="fa-brands fa-whatsapp text-lg"></i> محادثة واتساب</span>
+          <i class="fa-solid fa-chevron-left text-xs text-emerald-400/50"></i>
+        </a>
+        <a id="btnMaps" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-rose-400"></i> الموقع على الخريطة</span>
+          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
+        </a>
+        <a id="btnInsta" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
+          <span class="flex items-center gap-3"><i class="fa-brands fa-instagram text-pink-400"></i> متابعة على إنستغرام</span>
+          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
+        </a>
+      </div>
+
+      <button id="btnOpenEdit" class="mt-8 text-xs text-slate-500 hover:text-slate-300 transition flex items-center gap-1.5 mx-auto">
+        <i class="fa-solid fa-gear"></i> تعديل بيانات البطاقة
+      </button>
     </div>
 
-    <div class="cover" id="pCover"></div>
-    <div class="avatar-wrap">
-      <div class="avatar">
-        <img id="pAvatar" src="https://via.placeholder.com/150/141414/d4af37?text=Logo" alt="Logo" />
-      </div>
+    <!-- Edit Mode -->
+    <div id="editMode" class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl hidden">
+      <h2 class="text-xl font-bold text-white mb-4 text-center">تعديل بيانات <span id="clientBadge" class="text-emerald-400"></span></h2>
+      <form id="editForm" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">اسم المحل أو النشاط</label>
+          <input type="text" id="inputName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">وصف مختصر</label>
+          <input type="text" id="inputDesc" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">رقم الهاتف</label>
+          <input type="tel" id="inputPhone" placeholder="0600000000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">رقم الواتساب (مع رمز الدولة)</label>
+          <input type="tel" id="inputWhatsapp" placeholder="212600000000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">رابط Google Maps</label>
+          <input type="url" id="inputMaps" placeholder="https://maps.google.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">رابط حساب إنستغرام</label>
+          <input type="url" id="inputInsta" placeholder="https://instagram.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="submit" id="btnSave" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition text-sm">حفظ التغييرات</button>
+          <button type="button" id="btnCancelEdit" class="px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2.5 rounded-xl transition text-sm">إلغاء</button>
+        </div>
+      </form>
     </div>
-    
-    <div class="meta">
-      <span class="tag" id="pProf">COMMERCE</span>
-      <h1 class="name" id="pName">Boutique</h1>
-    </div>
+  </main>
 
-    <div class="grid" id="mainGrid"></div>
-    <div id="moreLinks"></div>
-  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
+      authDomain: "cartes-clients-aa64f.firebaseapp.com",
+      projectId: "cartes-clients-aa64f",
+      storageBucket: "cartes-clients-aa64f.firebasestorage.app",
+      messagingSenderId: "469049575960",
+      appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
+    };
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const curId = urlParams.get('id');
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  // Icons SVG مدمجة فائقة السرعة
-  const ICONS = {
-    phone: `<svg class="svg-icon" style="color:#2ecc71" viewBox="0 0 24 24"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>`,
-    wa: `<svg class="svg-icon" style="color:#25d366" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24"/></svg>`,
-    ig: `<svg class="svg-icon" style="color:#e1306c" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`,
-    fb: `<svg class="svg-icon" style="color:#1877f2" viewBox="0 0 24 24"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
-    tt: `<svg class="svg-icon" style="color:#fff" viewBox="0 0 24 24"><path fill="currentColor" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,
-    maps: `<svg class="svg-icon" style="color:#ea4335" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
-  };
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('id') || 'client01';
 
-  function init() {
-    if (!curId) {
-      showDashboard();
-    } else {
-      const saved = localStorage.getItem('stand_' + curId);
-      if (saved) {
-        showProfile(JSON.parse(saved));
-      } else {
-        openForm();
+    const defaultData = {
+      name: "اسم المحل الافتراضي",
+      desc: "مرحباً بكم، اضغط على الروابط للتواصل معنا",
+      phone: "",
+      whatsapp: "",
+      maps: "",
+      instagram: ""
+    };
+
+    let currentData = { ...defaultData };
+    const docRef = doc(db, "clients", clientId);
+
+    async function loadData() {
+      try {
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          currentData = snap.data();
+        } else {
+          await setDoc(docRef, defaultData);
+        }
+        renderView();
+      } catch (err) {
+        console.error("خطأ في جلب البيانات:", err);
+      } finally {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
       }
     }
-  }
 
-  function showDashboard() {
-    document.getElementById('viewDash').style.display = 'block';
-    const box = document.getElementById('dashList');
-    let html = '';
-    for (let i = 1; i <= 50; i++) {
-      const id = 'client' + (i < 10 ? '0' + i : i);
-      const dataStr = localStorage.getItem('stand_' + id);
-      const data = dataStr ? JSON.parse(dataStr) : null;
-      html += `
-        <a class="client-row" href="?id=${id}">
-          <div>
-            <div style="font-weight:bold;font-size:14px;">Stand #${i < 10 ? '0' + i : i}</div>
-            <div style="font-size:11px;color:#d4af37;">${data && data.name ? data.name : 'فارغ'}</div>
-          </div>
-          <span class="badge ${data ? 'b-act' : 'b-new'}">${data ? 'مفعل' : 'جديد'}</span>
-        </a>
-      `;
+    function renderView() {
+      document.getElementById('viewName').textContent = currentData.name || "اسم المحل";
+      document.getElementById('viewDesc').textContent = currentData.desc || "";
+
+      setupBtn('btnPhone', currentData.phone ? `tel:${currentData.phone}` : null);
+      setupBtn('btnWhatsapp', currentData.whatsapp ? `https://wa.me/${currentData.whatsapp}` : null);
+      setupBtn('btnMaps', currentData.maps || null);
+      setupBtn('btnInsta', currentData.instagram || null);
     }
-    box.innerHTML = html;
-  }
 
-  function openForm(existing = null) {
-    document.getElementById('viewDash').style.display = 'none';
-    document.getElementById('viewProf').style.display = 'none';
-    document.getElementById('viewForm').style.display = 'block';
-    document.getElementById('standTag').textContent = 'Stand: ' + curId;
-
-    if (existing) {
-      document.getElementById('fName').value = existing.name || '';
-      document.getElementById('fProf').value = existing.prof || '';
-      document.getElementById('fAvatar').value = existing.avatar || '';
-      document.getElementById('fCover').value = existing.cover || '';
-      document.getElementById('fPhone').value = existing.phone || '';
-      document.getElementById('fWa').value = existing.wa || '';
-      document.getElementById('fIg').value = existing.ig || '';
-      document.getElementById('fFb').value = existing.fb || '';
-      document.getElementById('fTt').value = existing.tt || '';
-      document.getElementById('fMaps').value = existing.maps || '';
+    function setupBtn(id, href) {
+      const el = document.getElementById(id);
+      if (href) {
+        el.href = href;
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
     }
-  }
 
-  function showProfile(d) {
-    document.getElementById('viewDash').style.display = 'none';
-    document.getElementById('viewForm').style.display = 'none';
-    document.getElementById('viewProf').style.display = 'block';
+    document.getElementById('btnOpenEdit').addEventListener('click', () => {
+      document.getElementById('clientBadge').textContent = clientId;
+      document.getElementById('inputName').value = currentData.name || '';
+      document.getElementById('inputDesc').value = currentData.desc || '';
+      document.getElementById('inputPhone').value = currentData.phone || '';
+      document.getElementById('inputWhatsapp').value = currentData.whatsapp || '';
+      document.getElementById('inputMaps').value = currentData.maps || '';
+      document.getElementById('inputInsta').value = currentData.instagram || '';
 
-    document.getElementById('pName').textContent = d.name || '';
-    document.getElementById('pProf').textContent = d.prof || 'COMMERCE';
-    if (d.avatar) document.getElementById('pAvatar').src = d.avatar;
-    if (d.cover) document.getElementById('pCover').style.backgroundImage = `url('${d.cover}')`;
+      document.getElementById('viewMode').classList.add('hidden');
+      document.getElementById('editMode').classList.remove('hidden');
+    });
 
-    let gHtml = '';
-    if (d.phone) gHtml += `<a class="btn-act" href="tel:${d.phone}">${ICONS.phone}<div class="btn-txt"><h4>Appeler</h4><p>${d.phone}</p></div></a>`;
-    if (d.wa) gHtml += `<a class="btn-act" href="https://wa.me/${d.wa.replace(/[^0-9]/g,'')}">${ICONS.wa}<div class="btn-txt"><h4>WhatsApp</h4><p>Discuter</p></div></a>`;
-    if (d.ig) gHtml += `<a class="btn-act" target="_blank" href="${d.ig}">${ICONS.ig}<div class="btn-txt"><h4>Instagram</h4><p>Suivre</p></div></a>`;
-    if (d.fb) gHtml += `<a class="btn-act" target="_blank" href="${d.fb}">${ICONS.fb}<div class="btn-txt"><h4>Facebook</h4><p>Page</p></div></a>`;
-    document.getElementById('mainGrid').innerHTML = gHtml;
+    document.getElementById('btnCancelEdit').addEventListener('click', () => {
+      document.getElementById('editMode').classList.add('hidden');
+      document.getElementById('viewMode').classList.remove('hidden');
+    });
 
-    let mHtml = '';
-    if (d.tt) mHtml += `<a class="btn-full" target="_blank" href="${d.tt}">${ICONS.tt}<div class="btn-txt"><h4>TikTok</h4><p>Vidéos</p></div></a>`;
-    if (d.maps) mHtml += `<a class="btn-full" target="_blank" href="${d.maps}">${ICONS.maps}<div class="btn-txt"><h4>Google Maps</h4><p>Itinéraire</p></div></a>`;
-    document.getElementById('moreLinks').innerHTML = mHtml;
-  }
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btnSave');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'جاري الحفظ...';
 
-  function editCurrent() {
-    const saved = localStorage.getItem('stand_' + curId);
-    openForm(saved ? JSON.parse(saved) : null);
-  }
+      const updated = {
+        name: document.getElementById('inputName').value,
+        desc: document.getElementById('inputDesc').value,
+        phone: document.getElementById('inputPhone').value,
+        whatsapp: document.getElementById('inputWhatsapp').value,
+        maps: document.getElementById('inputMaps').value,
+        instagram: document.getElementById('inputInsta').value,
+      };
 
-  document.getElementById('myform').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = {
-      name: document.getElementById('fName').value.trim(),
-      prof: document.getElementById('fProf').value.trim(),
-      avatar: document.getElementById('fAvatar').value.trim(),
-      cover: document.getElementById('fCover').value.trim(),
-      phone: document.getElementById('fPhone').value.trim(),
-      wa: document.getElementById('fWa').value.trim(),
-      ig: document.getElementById('fIg').value.trim(),
-      fb: document.getElementById('fFb').value.trim(),
-      tt: document.getElementById('fTt').value.trim(),
-      maps: document.getElementById('fMaps').value.trim()
-    };
-    localStorage.setItem('stand_' + curId, JSON.stringify(data));
-    showProfile(data);
-  });
+      try {
+        await setDoc(docRef, updated);
+        currentData = updated;
+        renderView();
+        document.getElementById('editMode').classList.add('hidden');
+        document.getElementById('viewMode').classList.remove('hidden');
+      } catch (err) {
+        alert("فشل الحفظ: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'حفظ التغييرات';
+      }
+    });
 
-  init();
-</script>
+    loadData();
+  </script>
 </body>
 </html>
