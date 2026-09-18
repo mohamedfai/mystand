@@ -20,7 +20,7 @@
     .container { width: 100%; max-width: 440px; }
     .hidden { display: none !important; }
 
-    /* Dashboard UI */
+    /* Dashboard */
     .dash-header { text-align: center; margin-bottom: 20px; }
     .dash-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
     .dash-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
@@ -31,8 +31,7 @@
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #444; }
     .dot.active { background: var(--green); box-shadow: 0 0 6px rgba(46, 204, 113, 0.4); }
     .client-status { font-size: 11px; color: var(--text-muted); }
-    .btn-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; cursor: pointer; transition: 0.2s; }
-    .btn-action:hover { background: var(--gold); color: #000; }
+    .btn-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; cursor: pointer; }
 
     /* Profile UI */
     .profile-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
@@ -43,9 +42,9 @@
     .business-activity { font-size: 12px; color: var(--gold); margin-bottom: 6px; font-weight: 600; }
     .business-desc { font-size: 12px; color: var(--text-muted); padding: 0 20px; margin-bottom: 18px; line-height: 1.4; }
 
-    /* Buttons Container */
+    /* Buttons */
     .links-grid { display: flex; flex-direction: column; gap: 9px; padding: 0 16px 20px 16px; }
-    .btn-link { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1f1f1f; border: 1px solid var(--border); border-radius: 12px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .btn-link { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1f1f1f; border: 1px solid var(--border); border-radius: 12px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
     .btn-link:active { transform: scale(0.98); }
     .btn-link span { display: flex; align-items: center; gap: 10px; }
     .btn-save-contact { background: var(--gold); color: #000 !important; font-weight: 700; border: none; justify-content: center; gap: 8px; margin-bottom: 4px; cursor: pointer; }
@@ -62,9 +61,6 @@
     .btn-submit { flex: 1; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
     .btn-cancel { background: #222; color: #fff; border: 1px solid var(--border); padding: 12px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; }
 
-    .bottom-btn { margin-top: 14px; margin-bottom: 14px; text-align: center; }
-    .link-muted { color: var(--text-muted); font-size: 12px; text-decoration: none; cursor: pointer; }
-    .link-muted:hover { color: var(--gold); }
     .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(212,175,55,0.2); border-radius: 50%; border-top-color: var(--gold); animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -72,14 +68,12 @@
 <body>
 
 <div class="container">
-
-  <!-- الشاشة التحضيرية -->
   <div id="loader" style="text-align:center; padding-top: 80px;">
     <div class="spinner"></div>
-    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">جاري الفتح السريع...</p>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">جاري التحميل السريع...</p>
   </div>
 
-  <!-- لوحة التحكم 50 ستاند -->
+  <!-- لوحة التحكم -->
   <section id="dashboard" class="hidden">
     <div class="dash-header">
       <h1 class="dash-title">لوحة التحكم — 50 ستاند 🤍</h1>
@@ -88,7 +82,7 @@
     <div class="client-list" id="clientsContainer"></div>
   </section>
 
-  <!-- واجهة البطاقة الرقمية الفاخرة (الأسود والذهبي) -->
+  <!-- واجهة البطاقة الرقمية -->
   <section id="profileView" class="hidden">
     <div class="profile-card">
       <div id="viewCover" class="cover-img"></div>
@@ -100,12 +94,10 @@
       <p id="viewActivity" class="business-activity">نوع النشاط</p>
       <p id="viewDesc" class="business-desc"></p>
 
-      <div class="links-grid" id="profileLinks">
-        <!-- زر حفظ جهة الاتصال تلقائياً -->
+      <div class="links-grid">
         <button id="btnSaveVcard" class="btn-link btn-save-contact">
           <span>💾 حفظ في جهات الاتصال (Enregistrer)</span>
         </button>
-
         <a id="linkPhone" class="btn-link hidden" href="#"><span>📞 اتصال هاتفي</span><span>‹</span></a>
         <a id="linkWhatsapp" class="btn-link hidden" href="#" target="_blank"><span>💬 محادثة واتساب</span><span>‹</span></a>
         <a id="linkMaps" class="btn-link hidden" href="#" target="_blank"><span>📍 الموقع على الخريطة</span><span>‹</span></a>
@@ -113,10 +105,6 @@
         <a id="linkFb" class="btn-link hidden" href="#" target="_blank"><span>🌐 فيسبوك</span><span>‹</span></a>
         <a id="linkTiktok" class="btn-link hidden" href="#" target="_blank"><span>🎵 تيك توك</span><span>‹</span></a>
       </div>
-    </div>
-
-    <div class="bottom-btn">
-      <a id="btnEditCard" class="link-muted">⚙️ تعديل بيانات هذه البطاقة</a>
     </div>
   </section>
 
@@ -133,11 +121,11 @@
         </div>
         <div class="form-group">
           <label>نوع النشاط</label>
-          <input type="text" id="inActivity" placeholder="مثلاً: مقهى، متجر ملابس، حلاق...">
+          <input type="text" id="inActivity" placeholder="مثلاً: متجر، مقهى...">
         </div>
         <div class="form-group">
           <label>وصف مختصر</label>
-          <input type="text" id="inDesc" placeholder="جملة ترحيبية بالزبائن">
+          <input type="text" id="inDesc" placeholder="جملة ترحيبية">
         </div>
         <div class="form-group">
           <label>رقم الهاتف للاتصال</label>
@@ -179,7 +167,6 @@
       </form>
     </div>
   </section>
-
 </div>
 
 <script type="module">
@@ -206,18 +193,18 @@
 
   async function init() {
     if (!clientId) {
-      // فتح لوحة تحكم 50 ستاند
       showSection('dashboard');
       renderDashboard();
+      return;
+    }
+
+    await loadClient(clientId);
+
+    if (isEditParam) {
+      showEditForm();
     } else {
-      // فتح ستاند زبون محدد
-      await loadClient(clientId);
-      if (isEditParam || !currentClientData || !currentClientData.name) {
-        showEditForm();
-      } else {
-        renderProfile();
-        showSection('profileView');
-      }
+      renderProfile();
+      showSection('profileView');
     }
   }
 
@@ -244,13 +231,12 @@
           <span class="client-status" id="status-${cId}">جاري الفحص...</span>
         </div>
         <div style="display:flex; gap:6px;">
-          <a class="btn-action" href="${origin}?id=${cId}">معاينة</a>
+          <a class="btn-action" href="${origin}?id=${cId}">البطاقة</a>
           <a class="btn-action" href="${origin}?id=${cId}&edit=true">إعداد ←</a>
         </div>
       `;
       list.appendChild(row);
 
-      // فحص سريع لحالة الستاند
       getDoc(doc(db, "clients", cId)).then(snap => {
         const dot = document.getElementById(`dot-${cId}`);
         const status = document.getElementById(`status-${cId}`);
@@ -271,20 +257,20 @@
       if (snap.exists()) {
         currentClientData = snap.data();
       } else {
-        currentClientData = null;
+        currentClientData = { name: "بطاقة ذكية", desc: "يرجى مسح البطاقة لاحقاً" };
       }
     } catch (e) {
       console.error(e);
+      currentClientData = {};
     }
   }
 
   function renderProfile() {
     const d = currentClientData || {};
-    document.getElementById('viewName').textContent = d.name || '';
+    document.getElementById('viewName').textContent = d.name || 'بطاقة ذكية';
     document.getElementById('viewActivity').textContent = d.activity || '';
     document.getElementById('viewDesc').textContent = d.desc || '';
 
-    // الصور (Avatar + Cover)
     if (d.logo) {
       const img = document.getElementById('viewAvatarImg');
       img.src = d.logo;
@@ -299,7 +285,6 @@
       document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
     }
 
-    // إخفاء الحقول الفارغة وإظهار فقط ما تم إدخاله
     setLink('linkPhone', d.phone ? `tel:${d.phone}` : null);
     setLink('linkWhatsapp', d.whatsapp ? `https://wa.me/${d.whatsapp}` : null);
     setLink('linkMaps', d.maps || null);
@@ -335,21 +320,14 @@
     showSection('editFormSection');
   }
 
-  document.getElementById('btnEditCard').addEventListener('click', () => showEditForm());
   document.getElementById('btnCancelEdit').addEventListener('click', () => {
-    if (currentClientData && currentClientData.name) {
-      renderProfile();
-      showSection('profileView');
-    } else {
-      window.location.href = window.location.pathname;
-    }
+    window.location.href = window.location.pathname + '?id=' + clientId;
   });
 
-  // حفظ التعديلات في Firebase Firestore
   document.getElementById('standForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSaveSubmit');
-    btn.textContent = 'جاري الحفظ الفوري...';
+    btn.textContent = 'جاري الحفظ...';
     btn.disabled = true;
 
     const data = {
@@ -369,17 +347,14 @@
     try {
       await setDoc(doc(db, "clients", clientId), data);
       currentClientData = data;
-      renderProfile();
-      showSection('profileView');
+      window.location.href = window.location.pathname + '?id=' + clientId;
     } catch (err) {
       alert("حدث خطأ أثناء الحفظ: " + err.message);
-    } finally {
       btn.textContent = 'حفظ التفعيل الآن';
       btn.disabled = false;
     }
   });
 
-  // تنزيل ملف VCF مباشرة إلى جهات اتصال هاتف الزائر
   document.getElementById('btnSaveVcard').addEventListener('click', () => {
     const d = currentClientData || {};
     const name = d.name || 'الزبون';
