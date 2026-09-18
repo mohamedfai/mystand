@@ -2,209 +2,400 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>بطاقة الزبون الذكية</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>نظام الستاند الذكي NFC / QR</title>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    :root {
+      --gold: #d4af37;
+      --gold-hover: #b89728;
+      --bg: #0c0c0c;
+      --card-bg: #161616;
+      --border: #262626;
+      --text: #ffffff;
+      --text-muted: #888888;
+      --green: #2ecc71;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 15px; }
+    .container { width: 100%; max-width: 440px; }
+    .hidden { display: none !important; }
+
+    /* Dashboard UI */
+    .dash-header { text-align: center; margin-bottom: 20px; }
+    .dash-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .dash-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .client-list { display: flex; flex-direction: column; gap: 8px; }
+    .client-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; }
+    .client-info { display: flex; flex-direction: column; gap: 2px; }
+    .client-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #444; }
+    .dot.active { background: var(--green); box-shadow: 0 0 6px rgba(46, 204, 113, 0.4); }
+    .client-status { font-size: 11px; color: var(--text-muted); }
+    .btn-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 12px; border-radius: 8px; font-size: 12px; text-decoration: none; cursor: pointer; transition: 0.2s; }
+    .btn-action:hover { background: var(--gold); color: #000; }
+
+    /* Profile UI */
+    .profile-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+    .cover-img { width: 100%; height: 110px; background: linear-gradient(45deg, #1f1f1f, #2a2a2a); background-size: cover; background-position: center; }
+    .avatar-wrapper { margin-top: -45px; margin-bottom: 12px; }
+    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); background: #222; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--gold); object-fit: cover; }
+    .business-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .business-activity { font-size: 12px; color: var(--gold); margin-bottom: 6px; font-weight: 600; }
+    .business-desc { font-size: 12px; color: var(--text-muted); padding: 0 20px; margin-bottom: 18px; line-height: 1.4; }
+
+    /* Buttons Container */
+    .links-grid { display: flex; flex-direction: column; gap: 9px; padding: 0 16px 20px 16px; }
+    .btn-link { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1f1f1f; border: 1px solid var(--border); border-radius: 12px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .btn-link:active { transform: scale(0.98); }
+    .btn-link span { display: flex; align-items: center; gap: 10px; }
+    .btn-save-contact { background: var(--gold); color: #000 !important; font-weight: 700; border: none; justify-content: center; gap: 8px; margin-bottom: 4px; cursor: pointer; }
+
+    /* Form UI */
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
+    .form-header { text-align: center; margin-bottom: 16px; }
+    .form-title { font-size: 18px; font-weight: 700; color: var(--gold); }
+    .form-group { margin-bottom: 12px; text-align: right; }
+    .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+    .form-group input { width: 100%; padding: 10px 12px; background: #0c0c0c; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
+    .form-group input:focus { border-color: var(--gold); }
+    .form-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .btn-submit { flex: 1; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .btn-cancel { background: #222; color: #fff; border: 1px solid var(--border); padding: 12px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; }
+
+    .bottom-btn { margin-top: 14px; margin-bottom: 14px; text-align: center; }
+    .link-muted { color: var(--text-muted); font-size: 12px; text-decoration: none; cursor: pointer; }
+    .link-muted:hover { color: var(--gold); }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(212,175,55,0.2); border-radius: 50%; border-top-color: var(--gold); animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body>
 
-  <div id="loading" class="text-center">
-    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent mb-3"></div>
-    <p class="text-slate-400 text-sm">جاري تحميل البيانات...</p>
+<div class="container">
+
+  <!-- الشاشة التحضيرية -->
+  <div id="loader" style="text-align:center; padding-top: 80px;">
+    <div class="spinner"></div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">جاري الفتح السريع...</p>
   </div>
 
-  <main id="app" class="w-full max-w-md hidden fade-in">
-    <!-- View Mode -->
-    <div id="viewMode" class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl text-center relative overflow-hidden">
-      <div class="w-24 h-24 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-4">
-        <i class="fa-solid fa-store text-3xl text-slate-950"></i>
-      </div>
-      <h1 id="viewName" class="text-2xl font-bold text-white mb-1">اسم المحل</h1>
-      <p id="viewDesc" class="text-slate-400 text-sm mb-6">وصف النشاط التجاري</p>
+  <!-- لوحة التحكم 50 ستاند -->
+  <section id="dashboard" class="hidden">
+    <div class="dash-header">
+      <h1 class="dash-title">لوحة التحكم — 50 ستاند 🤍</h1>
+      <p class="dash-sub">كل ستاند له رابط فريد لبرمجة NFC أو QR Code.<br>النقطة الخضراء = مفعّل | الرمادية = مازال فارغاً</p>
+    </div>
+    <div class="client-list" id="clientsContainer"></div>
+  </section>
 
-      <div class="space-y-3" id="linksContainer">
-        <a id="btnPhone" href="#" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-phone text-emerald-400"></i> اتصال هاتفياً</span>
-          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
-        </a>
-        <a id="btnWhatsapp" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 rounded-xl transition border border-emerald-500/30">
-          <span class="flex items-center gap-3"><i class="fa-brands fa-whatsapp text-lg"></i> محادثة واتساب</span>
-          <i class="fa-solid fa-chevron-left text-xs text-emerald-400/50"></i>
-        </a>
-        <a id="btnMaps" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
-          <span class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-rose-400"></i> الموقع على الخريطة</span>
-          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
-        </a>
-        <a id="btnInsta" href="#" target="_blank" class="flex items-center justify-between p-3.5 bg-slate-700/50 hover:bg-slate-700 rounded-xl transition border border-slate-600/40">
-          <span class="flex items-center gap-3"><i class="fa-brands fa-instagram text-pink-400"></i> متابعة على إنستغرام</span>
-          <i class="fa-solid fa-chevron-left text-xs text-slate-500"></i>
-        </a>
+  <!-- واجهة البطاقة الرقمية الفاخرة (الأسود والذهبي) -->
+  <section id="profileView" class="hidden">
+    <div class="profile-card">
+      <div id="viewCover" class="cover-img"></div>
+      <div class="avatar-wrapper">
+        <img id="viewAvatarImg" class="avatar hidden" alt="Logo" />
+        <div id="viewAvatarPlaceholder" class="avatar">🏬</div>
       </div>
+      <h2 id="viewName" class="business-name">اسم المحل</h2>
+      <p id="viewActivity" class="business-activity">نوع النشاط</p>
+      <p id="viewDesc" class="business-desc"></p>
 
-      <button id="btnOpenEdit" class="mt-8 text-xs text-slate-500 hover:text-slate-300 transition flex items-center gap-1.5 mx-auto">
-        <i class="fa-solid fa-gear"></i> تعديل بيانات البطاقة
-      </button>
+      <div class="links-grid" id="profileLinks">
+        <!-- زر حفظ جهة الاتصال تلقائياً -->
+        <button id="btnSaveVcard" class="btn-link btn-save-contact">
+          <span>💾 حفظ في جهات الاتصال (Enregistrer)</span>
+        </button>
+
+        <a id="linkPhone" class="btn-link hidden" href="#"><span>📞 اتصال هاتفي</span><span>‹</span></a>
+        <a id="linkWhatsapp" class="btn-link hidden" href="#" target="_blank"><span>💬 محادثة واتساب</span><span>‹</span></a>
+        <a id="linkMaps" class="btn-link hidden" href="#" target="_blank"><span>📍 الموقع على الخريطة</span><span>‹</span></a>
+        <a id="linkInsta" class="btn-link hidden" href="#" target="_blank"><span>📸 إنستغرام</span><span>‹</span></a>
+        <a id="linkFb" class="btn-link hidden" href="#" target="_blank"><span>🌐 فيسبوك</span><span>‹</span></a>
+        <a id="linkTiktok" class="btn-link hidden" href="#" target="_blank"><span>🎵 تيك توك</span><span>‹</span></a>
+      </div>
     </div>
 
-    <!-- Edit Mode -->
-    <div id="editMode" class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl hidden">
-      <h2 class="text-xl font-bold text-white mb-4 text-center">تعديل بيانات <span id="clientBadge" class="text-emerald-400"></span></h2>
-      <form id="editForm" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">اسم المحل أو النشاط</label>
-          <input type="text" id="inputName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+    <div class="bottom-btn">
+      <a id="btnEditCard" class="link-muted">⚙️ تعديل بيانات هذه البطاقة</a>
+    </div>
+  </section>
+
+  <!-- استمارة الإعداد والتعديل -->
+  <section id="editFormSection" class="hidden">
+    <div class="form-card">
+      <div class="form-header">
+        <h2 class="form-title">إعداد / تفعيل الستاند (<span id="formClientId"></span>)</h2>
+      </div>
+      <form id="standForm">
+        <div class="form-group">
+          <label>اسم المتجر أو الشخص *</label>
+          <input type="text" id="inName" required placeholder="مثلاً: Mohamed Faiz">
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">وصف مختصر</label>
-          <input type="text" id="inputDesc" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        <div class="form-group">
+          <label>نوع النشاط</label>
+          <input type="text" id="inActivity" placeholder="مثلاً: مقهى، متجر ملابس، حلاق...">
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">رقم الهاتف</label>
-          <input type="tel" id="inputPhone" placeholder="0600000000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        <div class="form-group">
+          <label>وصف مختصر</label>
+          <input type="text" id="inDesc" placeholder="جملة ترحيبية بالزبائن">
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">رقم الواتساب (مع رمز الدولة)</label>
-          <input type="tel" id="inputWhatsapp" placeholder="212600000000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        <div class="form-group">
+          <label>رقم الهاتف للاتصال</label>
+          <input type="tel" id="inPhone" placeholder="0600000000">
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">رابط Google Maps</label>
-          <input type="url" id="inputMaps" placeholder="https://maps.google.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        <div class="form-group">
+          <label>رقم الواتساب (مع رمز الدولة)</label>
+          <input type="tel" id="inWhatsapp" placeholder="212600000000">
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">رابط حساب إنستغرام</label>
-          <input type="url" id="inputInsta" placeholder="https://instagram.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+        <div class="form-group">
+          <label>رابط خرائط Google Maps</label>
+          <input type="url" id="inMaps" placeholder="https://maps.app.goo.gl/...">
+        </div>
+        <div class="form-group">
+          <label>رابط إنستغرام</label>
+          <input type="url" id="inInsta" placeholder="https://instagram.com/...">
+        </div>
+        <div class="form-group">
+          <label>رابط فيسبوك</label>
+          <input type="url" id="inFb" placeholder="https://facebook.com/...">
+        </div>
+        <div class="form-group">
+          <label>رابط تيك توك</label>
+          <input type="url" id="inTiktok" placeholder="https://tiktok.com/@...">
+        </div>
+        <div class="form-group">
+          <label>رابط صورة الشعار (Logo URL)</label>
+          <input type="url" id="inLogo" placeholder="https://example.com/logo.jpg">
+        </div>
+        <div class="form-group">
+          <label>رابط صورة الغلاف (Cover URL)</label>
+          <input type="url" id="inCover" placeholder="https://example.com/cover.jpg">
         </div>
 
-        <div class="flex gap-2 pt-2">
-          <button type="submit" id="btnSave" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition text-sm">حفظ التغييرات</button>
-          <button type="button" id="btnCancelEdit" class="px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2.5 rounded-xl transition text-sm">إلغاء</button>
+        <div class="form-actions">
+          <button type="submit" id="btnSaveSubmit" class="btn-submit">حفظ التفعيل الآن</button>
+          <button type="button" id="btnCancelEdit" class="btn-cancel">إلغاء</button>
         </div>
       </form>
     </div>
-  </main>
+  </section>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
-      authDomain: "cartes-clients-aa64f.firebaseapp.com",
-      projectId: "cartes-clients-aa64f",
-      storageBucket: "cartes-clients-aa64f.firebasestorage.app",
-      messagingSenderId: "469049575960",
-      appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
+    authDomain: "cartes-clients-aa64f.firebaseapp.com",
+    projectId: "cartes-clients-aa64f",
+    storageBucket: "cartes-clients-aa64f.firebasestorage.app",
+    messagingSenderId: "469049575960",
+    appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
+  };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientId = urlParams.get('id') || 'client01';
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const defaultData = {
-      name: "اسم المحل الافتراضي",
-      desc: "مرحباً بكم، اضغط على الروابط للتواصل معنا",
-      phone: "",
-      whatsapp: "",
-      maps: "",
-      instagram: ""
-    };
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get('id');
+  const isEditParam = params.get('edit') === 'true';
 
-    let currentData = { ...defaultData };
-    const docRef = doc(db, "clients", clientId);
+  let currentClientData = null;
 
-    async function loadData() {
-      try {
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          currentData = snap.data();
-        } else {
-          await setDoc(docRef, defaultData);
-        }
-        renderView();
-      } catch (err) {
-        console.error("خطأ في جلب البيانات:", err);
-      } finally {
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-      }
-    }
-
-    function renderView() {
-      document.getElementById('viewName').textContent = currentData.name || "اسم المحل";
-      document.getElementById('viewDesc').textContent = currentData.desc || "";
-
-      setupBtn('btnPhone', currentData.phone ? `tel:${currentData.phone}` : null);
-      setupBtn('btnWhatsapp', currentData.whatsapp ? `https://wa.me/${currentData.whatsapp}` : null);
-      setupBtn('btnMaps', currentData.maps || null);
-      setupBtn('btnInsta', currentData.instagram || null);
-    }
-
-    function setupBtn(id, href) {
-      const el = document.getElementById(id);
-      if (href) {
-        el.href = href;
-        el.classList.remove('hidden');
+  async function init() {
+    if (!clientId) {
+      // فتح لوحة تحكم 50 ستاند
+      showSection('dashboard');
+      renderDashboard();
+    } else {
+      // فتح ستاند زبون محدد
+      await loadClient(clientId);
+      if (isEditParam || !currentClientData || !currentClientData.name) {
+        showEditForm();
       } else {
-        el.classList.add('hidden');
+        renderProfile();
+        showSection('profileView');
       }
     }
+  }
 
-    document.getElementById('btnOpenEdit').addEventListener('click', () => {
-      document.getElementById('clientBadge').textContent = clientId;
-      document.getElementById('inputName').value = currentData.name || '';
-      document.getElementById('inputDesc').value = currentData.desc || '';
-      document.getElementById('inputPhone').value = currentData.phone || '';
-      document.getElementById('inputWhatsapp').value = currentData.whatsapp || '';
-      document.getElementById('inputMaps').value = currentData.maps || '';
-      document.getElementById('inputInsta').value = currentData.instagram || '';
+  function showSection(id) {
+    document.getElementById('loader').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('profileView').classList.add('hidden');
+    document.getElementById('editFormSection').classList.add('hidden');
+    document.getElementById(id).classList.remove('hidden');
+  }
 
-      document.getElementById('viewMode').classList.add('hidden');
-      document.getElementById('editMode').classList.remove('hidden');
-    });
+  function renderDashboard() {
+    const list = document.getElementById('clientsContainer');
+    list.innerHTML = '';
+    const origin = window.location.origin + window.location.pathname;
 
-    document.getElementById('btnCancelEdit').addEventListener('click', () => {
-      document.getElementById('editMode').classList.add('hidden');
-      document.getElementById('viewMode').classList.remove('hidden');
-    });
+    for (let i = 1; i <= 50; i++) {
+      const cId = 'client' + String(i).padStart(2, '0');
+      const row = document.createElement('div');
+      row.className = 'client-row';
+      row.innerHTML = `
+        <div class="client-info">
+          <span class="client-title"><span class="dot" id="dot-${cId}"></span> ${cId}</span>
+          <span class="client-status" id="status-${cId}">جاري الفحص...</span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <a class="btn-action" href="${origin}?id=${cId}">معاينة</a>
+          <a class="btn-action" href="${origin}?id=${cId}&edit=true">إعداد ←</a>
+        </div>
+      `;
+      list.appendChild(row);
 
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const saveBtn = document.getElementById('btnSave');
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'جاري الحفظ...';
+      // فحص سريع لحالة الستاند
+      getDoc(doc(db, "clients", cId)).then(snap => {
+        const dot = document.getElementById(`dot-${cId}`);
+        const status = document.getElementById(`status-${cId}`);
+        if (snap.exists() && snap.data().name) {
+          dot.classList.add('active');
+          status.textContent = snap.data().name;
+          status.style.color = 'var(--gold)';
+        } else {
+          status.textContent = 'مازال ماعمرش';
+        }
+      });
+    }
+  }
 
-      const updated = {
-        name: document.getElementById('inputName').value,
-        desc: document.getElementById('inputDesc').value,
-        phone: document.getElementById('inputPhone').value,
-        whatsapp: document.getElementById('inputWhatsapp').value,
-        maps: document.getElementById('inputMaps').value,
-        instagram: document.getElementById('inputInsta').value,
-      };
-
-      try {
-        await setDoc(docRef, updated);
-        currentData = updated;
-        renderView();
-        document.getElementById('editMode').classList.add('hidden');
-        document.getElementById('viewMode').classList.remove('hidden');
-      } catch (err) {
-        alert("فشل الحفظ: " + err.message);
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'حفظ التغييرات';
+  async function loadClient(id) {
+    try {
+      const snap = await getDoc(doc(db, "clients", id));
+      if (snap.exists()) {
+        currentClientData = snap.data();
+      } else {
+        currentClientData = null;
       }
-    });
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-    loadData();
-  </script>
+  function renderProfile() {
+    const d = currentClientData || {};
+    document.getElementById('viewName').textContent = d.name || '';
+    document.getElementById('viewActivity').textContent = d.activity || '';
+    document.getElementById('viewDesc').textContent = d.desc || '';
+
+    // الصور (Avatar + Cover)
+    if (d.logo) {
+      const img = document.getElementById('viewAvatarImg');
+      img.src = d.logo;
+      img.classList.remove('hidden');
+      document.getElementById('viewAvatarPlaceholder').classList.add('hidden');
+    } else {
+      document.getElementById('viewAvatarImg').classList.add('hidden');
+      document.getElementById('viewAvatarPlaceholder').classList.remove('hidden');
+    }
+
+    if (d.cover) {
+      document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
+    }
+
+    // إخفاء الحقول الفارغة وإظهار فقط ما تم إدخاله
+    setLink('linkPhone', d.phone ? `tel:${d.phone}` : null);
+    setLink('linkWhatsapp', d.whatsapp ? `https://wa.me/${d.whatsapp}` : null);
+    setLink('linkMaps', d.maps || null);
+    setLink('linkInsta', d.instagram || null);
+    setLink('linkFb', d.facebook || null);
+    setLink('linkTiktok', d.tiktok || null);
+  }
+
+  function setLink(id, url) {
+    const el = document.getElementById(id);
+    if (url) {
+      el.href = url;
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
+  function showEditForm() {
+    document.getElementById('formClientId').textContent = clientId;
+    const d = currentClientData || {};
+    document.getElementById('inName').value = d.name || '';
+    document.getElementById('inActivity').value = d.activity || '';
+    document.getElementById('inDesc').value = d.desc || '';
+    document.getElementById('inPhone').value = d.phone || '';
+    document.getElementById('inWhatsapp').value = d.whatsapp || '';
+    document.getElementById('inMaps').value = d.maps || '';
+    document.getElementById('inInsta').value = d.instagram || '';
+    document.getElementById('inFb').value = d.facebook || '';
+    document.getElementById('inTiktok').value = d.tiktok || '';
+    document.getElementById('inLogo').value = d.logo || '';
+    document.getElementById('inCover').value = d.cover || '';
+    showSection('editFormSection');
+  }
+
+  document.getElementById('btnEditCard').addEventListener('click', () => showEditForm());
+  document.getElementById('btnCancelEdit').addEventListener('click', () => {
+    if (currentClientData && currentClientData.name) {
+      renderProfile();
+      showSection('profileView');
+    } else {
+      window.location.href = window.location.pathname;
+    }
+  });
+
+  // حفظ التعديلات في Firebase Firestore
+  document.getElementById('standForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveSubmit');
+    btn.textContent = 'جاري الحفظ الفوري...';
+    btn.disabled = true;
+
+    const data = {
+      name: document.getElementById('inName').value,
+      activity: document.getElementById('inActivity').value,
+      desc: document.getElementById('inDesc').value,
+      phone: document.getElementById('inPhone').value,
+      whatsapp: document.getElementById('inWhatsapp').value,
+      maps: document.getElementById('inMaps').value,
+      instagram: document.getElementById('inInsta').value,
+      facebook: document.getElementById('inFb').value,
+      tiktok: document.getElementById('inTiktok').value,
+      logo: document.getElementById('inLogo').value,
+      cover: document.getElementById('inCover').value,
+    };
+
+    try {
+      await setDoc(doc(db, "clients", clientId), data);
+      currentClientData = data;
+      renderProfile();
+      showSection('profileView');
+    } catch (err) {
+      alert("حدث خطأ أثناء الحفظ: " + err.message);
+    } finally {
+      btn.textContent = 'حفظ التفعيل الآن';
+      btn.disabled = false;
+    }
+  });
+
+  // تنزيل ملف VCF مباشرة إلى جهات اتصال هاتف الزائر
+  document.getElementById('btnSaveVcard').addEventListener('click', () => {
+    const d = currentClientData || {};
+    const name = d.name || 'الزبون';
+    const phone = d.phone || d.whatsapp || '';
+    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nNOTE:${d.desc || ''}\nEND:VCARD`;
+    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  init();
+</script>
 </body>
 </html>
