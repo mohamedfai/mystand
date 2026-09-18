@@ -116,22 +116,14 @@
       💾 Enregistrer le contact
     </button>
 
-    <!-- Appeler & WhatsApp -->
+    <!-- Contact Grid -->
     <div id="contactGrid" class="grid"></div>
-
-    <!-- Instagram & Facebook -->
     <div id="socialGrid" class="grid"></div>
-
-    <!-- TikToks -->
     <div id="tiktokContainer"></div>
-
-    <!-- Site Web -->
     <div id="websiteContainer"></div>
-
-    <!-- Google Maps -->
     <div id="mapsContainer"></div>
 
-    <!-- Avis Google -->
+    <!-- Google Review -->
     <a id="btnReview" href="#" target="_blank" class="btn-box full hidden" style="border-color: rgba(251,188,4,0.4); background: rgba(251,188,4,0.06);">
       <div class="btn-icon" style="color:#FBBC04;">
         <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -143,7 +135,7 @@
     </a>
   </section>
 
-  <!-- Edit Form -->
+  <!-- Form Section -->
   <section id="editFormSection" class="hidden">
     <div class="form-card">
       <h2 class="form-title">Configuration du Stand (<span id="formClientId"></span>)</h2>
@@ -425,7 +417,7 @@
       document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
     }
 
-    // Appeler + WhatsApp
+    // Grid Contacts
     const cGrid = document.getElementById('contactGrid');
     cGrid.innerHTML = '';
     const phones = Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []);
@@ -449,7 +441,7 @@
       `;
     });
 
-    // Instagram + Facebook
+    // Socials
     const sGrid = document.getElementById('socialGrid');
     sGrid.innerHTML = '';
     const instas = Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []);
@@ -543,7 +535,6 @@
     show('editFormSection');
   }
 
-  // ضغط الصور لحجم قياسي فائق الصغر
   function readFileAsBase64(file, maxW, maxH) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -613,7 +604,7 @@
     }
   });
 
-  // vCard المتوافق بنسبة 100% مع iOS ومعايير Apple Contacts
+  // توليد vCard متطابق بدقة مع حقول iOS (إضافة رابط وصفحات شخصية)
   document.getElementById('btnSaveVcard').addEventListener('click', () => {
     const d = currentData || {};
     const fullName = (d.name || 'Client').trim();
@@ -625,6 +616,9 @@
     const whatsapps = Array.isArray(d.whatsapps) && d.whatsapps.length > 0 ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []);
     const websites = Array.isArray(d.websites) && d.websites.length > 0 ? d.websites : (d.website ? [d.website] : []);
     const instas = Array.isArray(d.instas) && d.instas.length > 0 ? d.instas : (d.instagram ? [d.instagram] : []);
+    const fbs = Array.isArray(d.fbs) && d.fbs.length > 0 ? d.fbs : (d.facebook ? [d.facebook] : []);
+    const tiktoks = Array.isArray(d.tiktoks) && d.tiktoks.length > 0 ? d.tiktoks : (d.tiktok ? [d.tiktok] : []);
+    const maps = Array.isArray(d.mapsList) && d.mapsList.length > 0 ? d.mapsList : (d.maps ? [d.maps] : []);
 
     let lines = [];
     lines.push("BEGIN:VCARD");
@@ -637,31 +631,60 @@
       lines.push(`TITLE:${d.activity}`);
     }
 
-    // جميع أرقام الهواتف
-    phones.forEach((p, idx) => {
+    // الهواتف
+    phones.forEach(p => {
       lines.push(`TEL;TYPE=CELL,VOICE:${p}`);
     });
-    whatsapps.forEach((w) => {
+    whatsapps.forEach(w => {
       if (!phones.includes(w)) {
         lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
       }
     });
 
-    // المواقع الإلكترونية
-    websites.forEach((web) => {
-      lines.push(`URL;TYPE=WORK:${web}`);
+    let itemIndex = 1;
+
+    // الصفحات الشخصية (Social Profiles) في الآيفون
+    instas.forEach((ins, i) => {
+      lines.push(`item${itemIndex}.URL:${ins}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Instagram ${instas.length > 1 ? (i + 1) : ''}`);
+      lines.push(`X-SOCIALPROFILE;type=instagram:${ins}`);
+      itemIndex++;
     });
 
-    // جمع باقي الروابط في الملاحظات (NOTE) ليقرأها الآيفون داخل البروفايل
-    let notes = [];
-    if (d.desc) notes.push(d.desc);
-    instas.forEach(ins => notes.push(`Instagram: ${ins}`));
-    if (d.review) notes.push(`Google Review: ${d.review}`);
-    if (notes.length > 0) {
-      lines.push(`NOTE:${notes.join(' | ')}`);
+    fbs.forEach((f, i) => {
+      lines.push(`item${itemIndex}.URL:${f}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Facebook ${fbs.length > 1 ? (i + 1) : ''}`);
+      lines.push(`X-SOCIALPROFILE;type=facebook:${f}`);
+      itemIndex++;
+    });
+
+    tiktoks.forEach((tk, i) => {
+      lines.push(`item${itemIndex}.URL:${tk}`);
+      lines.push(`item${itemIndex}.X-ABLabel:TikTok ${tiktoks.length > 1 ? (i + 1) : ''}`);
+      lines.push(`X-SOCIALPROFILE;type=tiktok:${tk}`);
+      itemIndex++;
+    });
+
+    // خانات الروابط المخصصة في الآيفون (إضافة رابط)
+    websites.forEach((w, i) => {
+      lines.push(`item${itemIndex}.URL:${w}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Site Web ${websites.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    maps.forEach((m, i) => {
+      lines.push(`item${itemIndex}.URL:${m}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Google Maps ${maps.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    if (d.review) {
+      lines.push(`item${itemIndex}.URL:${d.review}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Avis Google`);
+      itemIndex++;
     }
 
-    // صورة الشعار / البروفايل المتوافقة مع معيار الآيفون (تقسيم الأسطر)
+    // صورة الشعار / البروفايل للآيفون
     if (d.logo && d.logo.includes(',')) {
       const b64 = d.logo.split(',')[1].replace(/[\r\n\s]/g, '');
       const chunks = b64.match(/.{1,72}/g);
