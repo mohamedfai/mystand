@@ -111,27 +111,27 @@
       <p id="viewDesc" class="desc"></p>
     </div>
 
-    <!-- Enregistrer le contact (Nom, Numéros, Infos, Logo) -->
+    <!-- Enregistrer le contact -->
     <button id="btnSaveVcard" class="btn-vcard">
       💾 Enregistrer le contact
     </button>
 
-    <!-- Appeler & WhatsApp (2 colonnes) -->
+    <!-- Appeler & WhatsApp -->
     <div id="contactGrid" class="grid"></div>
 
-    <!-- Instagram & Facebook (2 colonnes) -->
+    <!-- Instagram & Facebook -->
     <div id="socialGrid" class="grid"></div>
 
     <!-- TikToks -->
     <div id="tiktokContainer"></div>
 
-    <!-- Site Web (au-dessus de Maps) -->
+    <!-- Site Web -->
     <div id="websiteContainer"></div>
 
     <!-- Google Maps -->
     <div id="mapsContainer"></div>
 
-    <!-- Avis Google (en-dessous de Maps) -->
+    <!-- Avis Google -->
     <a id="btnReview" href="#" target="_blank" class="btn-box full hidden" style="border-color: rgba(251,188,4,0.4); background: rgba(251,188,4,0.06);">
       <div class="btn-icon" style="color:#FBBC04;">
         <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -143,7 +143,7 @@
     </a>
   </section>
 
-  <!-- Form Section -->
+  <!-- Edit Form -->
   <section id="editFormSection" class="hidden">
     <div class="form-card">
       <h2 class="form-title">Configuration du Stand (<span id="formClientId"></span>)</h2>
@@ -161,7 +161,6 @@
           <div class="input-row"><input type="text" id="inDesc" placeholder="Ex: Bienvenue dans notre boutique"></div>
         </div>
 
-        <!-- Téléphones [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Téléphone(s)</label>
@@ -170,7 +169,6 @@
           <div id="wrapPhones" class="inputs-wrapper"></div>
         </div>
 
-        <!-- WhatsApps [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>WhatsApp(s) (avec indicatif)</label>
@@ -179,7 +177,6 @@
           <div id="wrapWhatsapps" class="inputs-wrapper"></div>
         </div>
 
-        <!-- Instagram [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Instagram(s)</label>
@@ -188,7 +185,6 @@
           <div id="wrapInstas" class="inputs-wrapper"></div>
         </div>
 
-        <!-- Facebook [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Facebook(s)</label>
@@ -197,7 +193,6 @@
           <div id="wrapFbs" class="inputs-wrapper"></div>
         </div>
 
-        <!-- TikTok [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>TikTok(s)</label>
@@ -206,7 +201,6 @@
           <div id="wrapTiktoks" class="inputs-wrapper"></div>
         </div>
 
-        <!-- Site Web [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Site Web</label>
@@ -215,7 +209,6 @@
           <div id="wrapWebsites" class="inputs-wrapper"></div>
         </div>
 
-        <!-- Google Maps [+] -->
         <div class="form-group">
           <div class="group-header">
             <label>Google Maps</label>
@@ -224,7 +217,6 @@
           <div id="wrapMaps" class="inputs-wrapper"></div>
         </div>
 
-        <!-- Google Review -->
         <div class="form-group">
           <div class="group-header"><label>Lien Avis Google (Google Review)</label></div>
           <div class="input-row"><input type="url" id="inReview" placeholder="https://g.page/r/..."></div>
@@ -433,7 +425,7 @@
       document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
     }
 
-    // Grid: Appeler + WhatsApp
+    // Appeler + WhatsApp
     const cGrid = document.getElementById('contactGrid');
     cGrid.innerHTML = '';
     const phones = Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []);
@@ -457,7 +449,7 @@
       `;
     });
 
-    // Grid: Instagram + Facebook
+    // Instagram + Facebook
     const sGrid = document.getElementById('socialGrid');
     sGrid.innerHTML = '';
     const instas = Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []);
@@ -481,7 +473,7 @@
       `;
     });
 
-    // TikToks
+    // TikTok
     const tkWrap = document.getElementById('tiktokContainer');
     tkWrap.innerHTML = '';
     const tiktoks = Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []);
@@ -494,7 +486,7 @@
       `;
     });
 
-    // Site Web (au-dessus de Maps)
+    // Site Web
     const webWrap = document.getElementById('websiteContainer');
     webWrap.innerHTML = '';
     const websites = Array.isArray(d.websites) ? d.websites : (d.website ? [d.website] : []);
@@ -520,7 +512,7 @@
       `;
     });
 
-    // Avis Google (en bas de Maps)
+    // Google Review
     const btnRev = document.getElementById('btnReview');
     if (d.review) {
       btnRev.href = d.review;
@@ -551,6 +543,7 @@
     show('editFormSection');
   }
 
+  // ضغط الصور لحجم قياسي فائق الصغر
   function readFileAsBase64(file, maxW, maxH) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -568,7 +561,7 @@
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
         };
         img.src = e.target.result;
       };
@@ -577,11 +570,11 @@
   }
 
   document.getElementById('fileLogo').addEventListener('change', async (e) => {
-    if (e.target.files[0]) base64Logo = await readFileAsBase64(e.target.files[0], 250, 250);
+    if (e.target.files[0]) base64Logo = await readFileAsBase64(e.target.files[0], 200, 200);
   });
 
   document.getElementById('fileCover').addEventListener('change', async (e) => {
-    if (e.target.files[0]) base64Cover = await readFileAsBase64(e.target.files[0], 600, 300);
+    if (e.target.files[0]) base64Cover = await readFileAsBase64(e.target.files[0], 500, 250);
   });
 
   document.getElementById('btnCancelEdit').addEventListener('click', () => {
@@ -620,46 +613,74 @@
     }
   });
 
-  // حفظ جهة الاتصال الكاملة مع الصورة المدمجة
+  // vCard المتوافق بنسبة 100% مع iOS ومعايير Apple Contacts
   document.getElementById('btnSaveVcard').addEventListener('click', () => {
     const d = currentData || {};
-    const name = d.name || 'Client';
+    const fullName = (d.name || 'Client').trim();
+    const nameParts = fullName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     const phones = Array.isArray(d.phones) && d.phones.length > 0 ? d.phones : (d.phone ? [d.phone] : []);
+    const whatsapps = Array.isArray(d.whatsapps) && d.whatsapps.length > 0 ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []);
     const websites = Array.isArray(d.websites) && d.websites.length > 0 ? d.websites : (d.website ? [d.website] : []);
-    
-    let vcardParts = [];
-    vcardParts.push("BEGIN:VCARD");
-    vcardParts.push("VERSION:3.0");
-    vcardParts.push(`FN:${name}`);
-    if (d.activity) vcardParts.push(`TITLE:${d.activity}`);
-    if (d.desc) vcardParts.push(`NOTE:${d.desc}`);
+    const instas = Array.isArray(d.instas) && d.instas.length > 0 ? d.instas : (d.instagram ? [d.instagram] : []);
 
-    // Phones
-    phones.forEach(p => {
-      vcardParts.push(`TEL;TYPE=CELL:${p}`);
+    let lines = [];
+    lines.push("BEGIN:VCARD");
+    lines.push("VERSION:3.0");
+    lines.push(`N:${lastName};${firstName};;;`);
+    lines.push(`FN:${fullName}`);
+
+    if (d.activity) {
+      lines.push(`ORG:${d.activity}`);
+      lines.push(`TITLE:${d.activity}`);
+    }
+
+    // جميع أرقام الهواتف
+    phones.forEach((p, idx) => {
+      lines.push(`TEL;TYPE=CELL,VOICE:${p}`);
+    });
+    whatsapps.forEach((w) => {
+      if (!phones.includes(w)) {
+        lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
+      }
     });
 
-    // Websites
-    websites.forEach(w => {
-      vcardParts.push(`URL:${w}`);
+    // المواقع الإلكترونية
+    websites.forEach((web) => {
+      lines.push(`URL;TYPE=WORK:${web}`);
     });
 
-    // Photo Embed (Base64 JPEG)
-    if (d.logo && d.logo.startsWith('data:image')) {
-      const pureBase64 = d.logo.split(',')[1];
-      if (pureBase64) {
-        vcardParts.push(`PHOTO;ENCODING=b;TYPE=JPEG:${pureBase64}`);
+    // جمع باقي الروابط في الملاحظات (NOTE) ليقرأها الآيفون داخل البروفايل
+    let notes = [];
+    if (d.desc) notes.push(d.desc);
+    instas.forEach(ins => notes.push(`Instagram: ${ins}`));
+    if (d.review) notes.push(`Google Review: ${d.review}`);
+    if (notes.length > 0) {
+      lines.push(`NOTE:${notes.join(' | ')}`);
+    }
+
+    // صورة الشعار / البروفايل المتوافقة مع معيار الآيفون (تقسيم الأسطر)
+    if (d.logo && d.logo.includes(',')) {
+      const b64 = d.logo.split(',')[1].replace(/[\r\n\s]/g, '');
+      const chunks = b64.match(/.{1,72}/g);
+      if (chunks && chunks.length > 0) {
+        lines.push(`PHOTO;TYPE=JPEG;ENCODING=BASE64:`);
+        chunks.forEach(chunk => {
+          lines.push(` ${chunk}`);
+        });
       }
     }
 
-    vcardParts.push("END:VCARD");
+    lines.push("END:VCARD");
 
-    const vcardString = vcardParts.join("\r\n");
-    const blob = new Blob([vcardString], { type: 'text/vcard;charset=utf-8;' });
+    const vcfContent = lines.join("\r\n");
+    const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${name}.vcf`;
+    a.download = `${fullName}.vcf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
