@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirection...</title>
+  <style>
+    body { background: #0c0c0c; color: #d4af37; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .loader { text-align: center; font-size: 16px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="loader">⚡ Redirection en cours...</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
+      authDomain: "cartes-clients-aa64f.firebaseapp.com",
+      projectId: "cartes-clients-aa64f",
+      storageBucket: "cartes-clients-aa64f.firebasestorage.app",
+      messagingSenderId: "469049575960",
+      appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const standId = params.get('id');
+
+    async function redirect() {
+      if (!standId) return;
+      try {
+        const snap = await getDoc(doc(db, "dynamic_stands", standId));
+        if (snap.exists() && snap.data().targetUrl) {
+          window.location.replace(snap.data().targetUrl);
+        } else {
+          document.body.innerHTML = "<div class='loader'>⚠️ Stand non configuré pour le moment.</div>";
+        }
+      } catch (e) {
+        document.body.innerHTML = "<div class='loader'>Erreur de connexion.</div>";
+      }
+    }
+    redirect();
+  </script>
+</body>
+</html>
