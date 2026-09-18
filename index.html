@@ -28,17 +28,13 @@
     .client-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--border); padding: 10px 12px; border-radius: 12px; gap: 8px; }
     .client-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     .client-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #444; }
-    .dot.active { background: var(--green); box-shadow: 0 0 6px rgba(46, 204, 113, 0.4); }
-    .client-status { font-size: 11px; color: var(--text-muted); }
     .row-actions { display: flex; align-items: center; gap: 5px; }
     .btn-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 10px; border-radius: 8px; font-size: 11px; text-decoration: none; cursor: pointer; white-space: nowrap; }
     .btn-qr { background: #222; border: 1px solid #444; color: #fff; padding: 6px 8px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-qr:hover { border-color: var(--gold); color: var(--gold); }
 
     /* QR Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
-    .modal-box { background: #161616; border: 1px solid var(--gold); border-radius: 20px; padding: 24px; text-align: center; max-width: 320px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
+    .modal-box { background: #161616; border: 1px solid var(--gold); border-radius: 20px; padding: 24px; text-align: center; max-width: 320px; width: 100%; }
     .modal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 12px; }
     .qr-img { width: 180px; height: 180px; border-radius: 12px; background: #fff; padding: 10px; margin: 0 auto 16px auto; display: block; }
     .btn-download-qr { width: 100%; background: var(--gold); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; margin-bottom: 8px; }
@@ -53,7 +49,7 @@
     .name { font-size: 22px; font-weight: 800; color: #fff; }
     .desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; padding: 0 10px; }
 
-    /* Profile Actions */
+    /* Buttons */
     .btn-vcard { width: 100%; background: var(--gold); color: #000; border: none; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .btn-box { display: flex; align-items: center; gap: 12px; background: var(--btn-bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; text-decoration: none; color: #fff; transition: 0.15s; }
@@ -64,7 +60,7 @@
     .btn-txt h4 { font-size: 13px; font-weight: 700; line-height: 1.2; }
     .btn-txt p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    /* Form UI */
+    /* Form */
     .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
     .form-title { font-size: 18px; font-weight: 700; color: var(--gold); text-align: center; margin-bottom: 16px; }
     .form-group { margin-bottom: 14px; }
@@ -74,26 +70,25 @@
     .inputs-wrapper { display: flex; flex-direction: column; gap: 6px; }
     .input-row { display: flex; gap: 6px; align-items: center; }
     .input-row input { flex: 1; padding: 10px 12px; background: #0c0c0c; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
-    .input-row input:focus { border-color: var(--gold); }
     .btn-remove { background: #2a1515; border: 1px solid #e74c3c; color: #e74c3c; width: 34px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
     .file-input { width: 100%; padding: 8px; background: #0c0c0c; border: 1px dashed var(--border); border-radius: 10px; color: var(--text-muted); font-size: 12px; }
     
     .form-actions { display: flex; gap: 8px; margin-top: 18px; }
     .btn-submit { flex: 1; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
     .btn-cancel { background: #222; color: #fff; border: 1px solid var(--border); padding: 12px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; }
-    .loader { text-align: center; padding-top: 80px; font-size: 12px; color: var(--text-muted); }
+    .loader { text-align: center; padding-top: 60px; font-size: 13px; color: var(--gold); font-weight: 600; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div id="loader" class="loader">Chargement...</div>
+  <div id="loader" class="loader">⚡ Chargement rapide...</div>
 
   <!-- Dashboard 50 Stands -->
   <section id="dashboard" class="hidden">
     <div class="dash-header">
       <h1 class="dash-title">Tableau de Bord — 50 Stands</h1>
-      <p class="dash-sub">Chaque stand possède son lien unique NFC / QR Code.<br>Point Vert = Configuré | Gris = Non configuré</p>
+      <p class="dash-sub">Liens uniques prêts pour NFC & QR Code</p>
     </div>
     <div class="client-list" id="clientsContainer"></div>
   </section>
@@ -107,23 +102,20 @@
     </div>
     <div class="meta">
       <div id="viewBadge" class="tag hidden"></div>
-      <h2 id="viewName" class="name">Mohamed Faiz</h2>
+      <h2 id="viewName" class="name"></h2>
       <p id="viewDesc" class="desc"></p>
     </div>
 
-    <!-- Enregistrer le contact -->
     <button id="btnSaveVcard" class="btn-vcard">
       💾 Enregistrer le contact
     </button>
 
-    <!-- Contact Grid -->
     <div id="contactGrid" class="grid"></div>
     <div id="socialGrid" class="grid"></div>
     <div id="tiktokContainer"></div>
     <div id="websiteContainer"></div>
     <div id="mapsContainer"></div>
 
-    <!-- Google Review -->
     <a id="btnReview" href="#" target="_blank" class="btn-box full hidden" style="border-color: rgba(251,188,4,0.4); background: rgba(251,188,4,0.06);">
       <div class="btn-icon" style="color:#FBBC04;">
         <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -135,7 +127,7 @@
     </a>
   </section>
 
-  <!-- Form Section -->
+  <!-- Edit Form -->
   <section id="editFormSection" class="hidden">
     <div class="form-card">
       <h2 class="form-title">Configuration du Stand (<span id="formClientId"></span>)</h2>
@@ -210,7 +202,7 @@
         </div>
 
         <div class="form-group">
-          <div class="group-header"><label>Lien Avis Google (Google Review)</label></div>
+          <div class="group-header"><label>Lien Avis Google</label></div>
           <div class="input-row"><input type="url" id="inReview" placeholder="https://g.page/r/..."></div>
         </div>
 
@@ -298,11 +290,14 @@
   async function init() {
     if (!clientId) {
       show('dashboard');
-      renderDashboard();
+      renderDashboardFast();
       return;
     }
 
-    await loadData(clientId);
+    try {
+      const snap = await getDoc(doc(db, "clients", clientId));
+      if (snap.exists()) currentData = snap.data();
+    } catch(e) { console.error(e); }
 
     if (isEditParam) {
       showEdit();
@@ -320,43 +315,32 @@
     document.getElementById(id).classList.remove('hidden');
   }
 
-  function renderDashboard() {
+  // إنشاء اللائحة فوراً وبدون استدعاءات ثقيلة لقاعدة البيانات
+  function renderDashboardFast() {
     const list = document.getElementById('clientsContainer');
     list.innerHTML = '';
     const origin = window.location.origin + window.location.pathname;
 
+    let html = '';
     for (let i = 1; i <= 50; i++) {
       const cId = 'client' + String(i).padStart(2, '0');
-      const row = document.createElement('div');
-      row.className = 'client-row';
       const cardUrl = `${origin}?id=${cId}`;
       const editUrl = `${origin}?id=${cId}&edit=true`;
 
-      row.innerHTML = `
-        <div class="client-info">
-          <span class="client-title"><span class="dot" id="dot-${cId}"></span> ${cId}</span>
-          <span class="client-status" id="status-${cId}">Chargement...</span>
-        </div>
-        <div class="row-actions">
-          <button type="button" class="btn-qr" title="Voir QR Code" onclick="openQrModal('${cId}', '${cardUrl}')">▦ QR</button>
-          <a class="btn-action" href="${cardUrl}">البطاقة</a>
-          <a class="btn-action" href="${editUrl}">إعداد ←</a>
+      html += `
+        <div class="client-row">
+          <div class="client-info">
+            <span class="client-title">${cId}</span>
+          </div>
+          <div class="row-actions">
+            <button type="button" class="btn-qr" onclick="openQrModal('${cId}', '${cardUrl}')">▦ QR</button>
+            <a class="btn-action" href="${cardUrl}">Voir</a>
+            <a class="btn-action" href="${editUrl}">Éditer</a>
+          </div>
         </div>
       `;
-      list.appendChild(row);
-
-      getDoc(doc(db, "clients", cId)).then(snap => {
-        const dot = document.getElementById(`dot-${cId}`);
-        const status = document.getElementById(`status-${cId}`);
-        if (snap.exists() && snap.data().name) {
-          dot.classList.add('active');
-          status.textContent = snap.data().name;
-          status.style.color = 'var(--gold)';
-        } else {
-          status.textContent = 'مازال ماعمرش';
-        }
-      });
     }
+    list.innerHTML = html;
   }
 
   window.openQrModal = function(id, url) {
@@ -386,13 +370,6 @@
     document.getElementById('qrModal').classList.add('hidden');
   });
 
-  async function loadData(id) {
-    try {
-      const snap = await getDoc(doc(db, "clients", id));
-      if (snap.exists()) currentData = snap.data();
-    } catch(e) { console.error(e); }
-  }
-
   function renderProfile() {
     const d = currentData || {};
     document.getElementById('viewName').textContent = d.name || 'Stand NFC';
@@ -417,7 +394,7 @@
       document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
     }
 
-    // Grid Contacts
+    // Contacts
     const cGrid = document.getElementById('contactGrid');
     cGrid.innerHTML = '';
     const phones = Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []);
@@ -504,7 +481,7 @@
       `;
     });
 
-    // Google Review
+    // Avis Google
     const btnRev = document.getElementById('btnReview');
     if (d.review) {
       btnRev.href = d.review;
@@ -552,7 +529,7 @@
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.6));
+          resolve(canvas.toDataURL('image/jpeg', 0.55));
         };
         img.src = e.target.result;
       };
@@ -561,11 +538,11 @@
   }
 
   document.getElementById('fileLogo').addEventListener('change', async (e) => {
-    if (e.target.files[0]) base64Logo = await readFileAsBase64(e.target.files[0], 200, 200);
+    if (e.target.files[0]) base64Logo = await readFileAsBase64(e.target.files[0], 180, 180);
   });
 
   document.getElementById('fileCover').addEventListener('change', async (e) => {
-    if (e.target.files[0]) base64Cover = await readFileAsBase64(e.target.files[0], 500, 250);
+    if (e.target.files[0]) base64Cover = await readFileAsBase64(e.target.files[0], 450, 220);
   });
 
   document.getElementById('btnCancelEdit').addEventListener('click', () => {
@@ -604,7 +581,6 @@
     }
   });
 
-  // توليد vCard متطابق بدقة مع حقول iOS (إضافة رابط وصفحات شخصية)
   document.getElementById('btnSaveVcard').addEventListener('click', () => {
     const d = currentData || {};
     const fullName = (d.name || 'Client').trim();
@@ -631,19 +607,14 @@
       lines.push(`TITLE:${d.activity}`);
     }
 
-    // الهواتف
     phones.forEach(p => {
       lines.push(`TEL;TYPE=CELL,VOICE:${p}`);
     });
     whatsapps.forEach(w => {
-      if (!phones.includes(w)) {
-        lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
-      }
+      if (!phones.includes(w)) lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
     });
 
     let itemIndex = 1;
-
-    // الصفحات الشخصية (Social Profiles) في الآيفون
     instas.forEach((ins, i) => {
       lines.push(`item${itemIndex}.URL:${ins}`);
       lines.push(`item${itemIndex}.X-ABLabel:Instagram ${instas.length > 1 ? (i + 1) : ''}`);
@@ -665,7 +636,6 @@
       itemIndex++;
     });
 
-    // خانات الروابط المخصصة في الآيفون (إضافة رابط)
     websites.forEach((w, i) => {
       lines.push(`item${itemIndex}.URL:${w}`);
       lines.push(`item${itemIndex}.X-ABLabel:Site Web ${websites.length > 1 ? (i + 1) : ''}`);
@@ -684,7 +654,6 @@
       itemIndex++;
     }
 
-    // صورة الشعار / البروفايل للآيفون
     if (d.logo && d.logo.includes(',')) {
       const b64 = d.logo.split(',')[1].replace(/[\r\n\s]/g, '');
       const chunks = b64.match(/.{1,72}/g);
