@@ -1,659 +1,743 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Carte de Visite Digitale | MyStand</title>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <title>NFC Stand</title>
   <style>
     :root {
-      --bg-color: #0b0f19;
-      --card-bg: rgba(22, 27, 34, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --primary: #d4af37;
-      --primary-hover: #b89628;
-      --text-main: #f0f6fc;
-      --text-muted: #8b949e;
-      --btn-bg: rgba(255, 255, 255, 0.05);
-      --btn-hover: rgba(212, 175, 55, 0.15);
-      --danger: #f85149;
+      --gold: #d4af37;
+      --bg: #0c0c0c;
+      --card-bg: #161616;
+      --btn-bg: #1a1a1a;
+      --border: #262626;
+      --text: #ffffff;
+      --text-muted: #888888;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
+    .container { width: 100%; max-width: 420px; padding-bottom: 25px; }
+    .hidden { display: none !important; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* Auth Box */
+    .auth-box { background: var(--card-bg); border: 1px solid var(--gold); border-radius: 20px; padding: 30px 20px; text-align: center; margin-top: 50px; }
+    .auth-title { font-size: 18px; font-weight: bold; color: var(--gold); margin-bottom: 8px; }
+    .auth-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+    .auth-input { width: 180px; padding: 12px; text-align: center; font-size: 22px; letter-spacing: 6px; background: #000; border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; margin: 0 auto 16px auto; display: block; }
+    .auth-input:focus { border-color: var(--gold); }
+    .btn-auth { width: 180px; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 20px 15px 80px 15px;
-      background-image: radial-gradient(circle at 50% 0%, #1c2333 0%, var(--bg-color) 75%);
-    }
+    /* Dashboard UI */
+    .dash-header { text-align: center; margin-bottom: 20px; }
+    .dash-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .dash-sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .client-list { display: flex; flex-direction: column; gap: 8px; }
+    .client-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--border); padding: 10px 12px; border-radius: 12px; }
+    .client-title { font-weight: 700; font-size: 14px; }
+    .row-actions { display: flex; align-items: center; gap: 5px; }
+    .btn-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 10px; border-radius: 8px; font-size: 11px; text-decoration: none; cursor: pointer; }
+    .btn-qr { background: #222; border: 1px solid #444; color: #fff; padding: 6px 8px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-    .card-container {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-      position: relative;
-    }
+    /* QR Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
+    .modal-box { background: #161616; border: 1px solid var(--gold); border-radius: 20px; padding: 24px; text-align: center; max-width: 320px; width: 100%; }
+    .modal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 12px; }
+    .qr-img { width: 180px; height: 180px; border-radius: 12px; background: #fff; padding: 10px; margin: 0 auto 16px auto; display: block; }
+    .btn-download-qr { width: 100%; background: var(--gold); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; margin-bottom: 8px; }
+    .btn-close-qr { width: 100%; background: #262626; color: #aaa; border: none; padding: 8px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-    .banner {
-      width: 100%;
-      height: 140px;
-      background: linear-gradient(135deg, #1c2333 0%, #2e384d 100%);
-      position: relative;
-    }
+    /* Profile UI */
+    .cover { width: 100%; height: 140px; background: #1c1c1c; border-radius: 16px 16px 0 0; background-size: cover; background-position: center; }
+    .avatar-wrap { display: flex; justify-content: center; margin-top: -55px; }
+    .avatar { width: 110px; height: 110px; border-radius: 24px; border: 2.5px solid var(--gold); background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--gold); object-fit: cover; }
+    .meta { text-align: center; margin: 12px 0 20px 0; }
+    .tag { display: inline-block; background: rgba(212,175,55,0.15); border: 1px solid var(--gold); color: var(--gold); font-size: 11px; padding: 3px 12px; border-radius: 12px; margin-bottom: 8px; font-weight: 600; }
+    .name { font-size: 22px; font-weight: 800; color: #fff; }
+    .desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; padding: 0 10px; }
 
-    .edit-trigger {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
+    /* Buttons */
+    .btn-vcard { width: 100%; background: var(--gold); color: #000; border: none; padding: 13px; border-radius: 14px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .btn-box { display: flex; align-items: center; gap: 12px; background: var(--btn-bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; text-decoration: none; color: #fff; }
+    .btn-box:active { transform: scale(0.97); }
+    .btn-box.full { width: 100%; margin-bottom: 10px; }
+    .btn-icon { width: 26px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .btn-icon svg { width: 22px; height: 22px; fill: currentColor; }
+    .btn-txt h4 { font-size: 13px; font-weight: 700; line-height: 1.2; }
+    .btn-txt p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .edit-trigger:hover {
-      background: var(--primary);
-      color: #000;
-    }
-
-    .avatar-wrapper {
-      position: relative;
-      margin-top: -65px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #161b22;
-      background-color: #21262d;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    .profile-info {
-      text-align: center;
-      padding: 15px 25px 10px 25px;
-    }
-
-    .name {
-      font-size: 24px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-    }
-
-    .title {
-      font-size: 14px;
-      color: var(--primary);
-      font-weight: 600;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .bio {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 10px;
-      line-height: 1.5;
-    }
-
-    .action-btn-main {
-      margin: 15px 25px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .save-vcf-btn {
-      flex: 1;
-      background: linear-gradient(135deg, var(--primary) 0%, #b89628 100%);
-      color: #0b0f19;
-      border: none;
-      padding: 14px;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-      transition: all 0.2s;
-    }
-
-    .save-vcf-btn:active {
-      transform: scale(0.98);
-    }
-
-    .links-list {
-      padding: 10px 25px 25px 25px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .link-item {
-      display: flex;
-      align-items: center;
-      background: var(--btn-bg);
-      border: 1px solid var(--card-border);
-      padding: 14px 18px;
-      border-radius: 16px;
-      color: var(--text-main);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 15px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .link-item:hover {
-      background: var(--btn-hover);
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    .link-item i {
-      font-size: 20px;
-      width: 32px;
-      text-align: center;
-      margin-right: 12px;
-    }
-
-    .link-item .fa-phone { color: #34c759; }
-    .link-item .fa-whatsapp { color: #25d366; }
-    .link-item .fa-instagram { color: #e1306c; }
-    .link-item .fa-facebook { color: #1877f2; }
-    .link-item .fa-tiktok { color: #ffffff; }
-    .link-item .fa-map-marker-alt { color: #ff9500; }
-    .link-item .fa-star { color: #ffcc00; }
-    .link-item .fa-globe { color: #007aff; }
-
-    .link-item .arrow {
-      margin-left: auto;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    /* Modal Form */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #161b22;
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      width: 100%;
-      max-width: 420px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 12px;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .form-group input, .form-group textarea {
-      width: 100%;
-      background: #0b0f19;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: var(--primary);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .btn-submit {
-      flex: 1;
-      background: var(--primary);
-      color: #000;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .pin-prompt {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .pin-prompt input {
-      letter-spacing: 6px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-    }
+    /* Form */
+    .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
+    .form-title { font-size: 18px; font-weight: 700; color: var(--gold); text-align: center; margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    .group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .group-header label { font-size: 11px; color: var(--text-muted); }
+    .btn-add { background: #262626; border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-size: 12px; padding: 2px 8px; cursor: pointer; font-weight: bold; }
+    .inputs-wrapper { display: flex; flex-direction: column; gap: 6px; }
+    .input-row { display: flex; gap: 6px; align-items: center; }
+    .input-row input { flex: 1; padding: 10px 12px; background: #0c0c0c; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
+    .btn-remove { background: #2a1515; border: 1px solid #e74c3c; color: #e74c3c; width: 34px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .file-input { width: 100%; padding: 8px; background: #0c0c0c; border: 1px dashed var(--border); border-radius: 10px; color: var(--text-muted); font-size: 12px; }
+    .form-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .btn-submit { flex: 1; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .btn-cancel { background: #222; color: #fff; border: 1px solid var(--border); padding: 12px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; }
+    .loader { text-align: center; padding-top: 60px; font-size: 14px; color: var(--gold); font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <div class="card-container" id="cardContainer">
-    <!-- Cover Banner -->
-    <div class="banner">
-      <button class="edit-trigger" id="openEditBtn">
-        <i class="fas fa-pen"></i> Modifier
-      </button>
+<div class="container">
+  <!-- قفل لوحة التحكم الرئيسية (2026) -->
+  <section id="dashboardAuth" class="hidden">
+    <div class="auth-box">
+      <h2 class="auth-title">🔒 Espace Administrateur</h2>
+      <p class="auth-sub">Entrez le code secret pour afficher les stands</p>
+      <input type="password" id="inputDashPass" class="auth-input" maxlength="6" placeholder="••••">
+      <button id="btnEnterDash" class="btn-auth">Connexion</button>
+    </div>
+  </section>
+
+  <!-- قفل إعدادات الزبون (من 2001 إلى 2050) -->
+  <section id="clientEditAuth" class="hidden">
+    <div class="auth-box">
+      <h2 class="auth-title">🔒 Configuration Stand</h2>
+      <p class="auth-sub" id="clientAuthSub">Entrez le code PIN pour configurer ce stand</p>
+      <input type="password" id="inputClientPin" class="auth-input" maxlength="6" placeholder="••••">
+      <button id="btnEnterClientEdit" class="btn-auth">Déverrouiller</button>
+    </div>
+  </section>
+
+  <div id="loader" class="loader hidden">⚡ Chargement des données...</div>
+
+  <!-- Dashboard -->
+  <section id="dashboard" class="hidden">
+    <div class="dash-header">
+      <h1 class="dash-title">Tableau de Bord — 50 Stands</h1>
+      <p class="dash-sub">Gestion complète des cartes NFC & QR</p>
+    </div>
+    <div class="client-list" id="clientsContainer"></div>
+  </section>
+
+  <!-- Profile View -->
+  <section id="profileView" class="hidden">
+    <div id="viewCover" class="cover"></div>
+    <div class="avatar-wrap">
+      <img id="viewAvatarImg" class="avatar hidden" alt="Logo">
+      <div id="viewAvatarPlaceholder" class="avatar">🏪</div>
+    </div>
+    <div class="meta">
+      <div id="viewBadge" class="tag hidden"></div>
+      <h2 id="viewName" class="name"></h2>
+      <p id="viewDesc" class="desc"></p>
     </div>
 
-    <!-- Avatar -->
-    <div class="avatar-wrapper">
-      <img id="viewAvatar" class="avatar" src="https://via.placeholder.com/150/21262d/d4af37?text=MyStand" alt="Photo de Profil">
-    </div>
+    <button id="btnSaveVcard" class="btn-vcard">💾 Enregistrer le contact</button>
 
-    <!-- Info Profil -->
-    <div class="profile-info">
-      <h1 class="name" id="viewName">Nom de l'entreprise</h1>
-      <div class="title" id="viewTitle">Activité / Profession</div>
-      <p class="bio" id="viewBio">Bienvenue sur notre carte de visite interactive.</p>
-    </div>
+    <div id="contactGrid" class="grid"></div>
+    <div id="socialGrid" class="grid"></div>
+    <div id="tiktokContainer"></div>
+    <div id="websiteContainer"></div>
+    <div id="mapsContainer"></div>
 
-    <!-- Bouton Enregistrer Contact (VCF) -->
-    <div class="action-btn-main">
-      <button class="save-vcf-btn" id="saveContactBtn">
-        <i class="fas fa-address-book"></i> Enregistrer le contact
-      </button>
-    </div>
-
-    <!-- Liste des Liens / Boutons -->
-    <div class="links-list" id="linksList">
-      <a id="btnPhone" href="#" class="link-item" style="display: none;">
-        <i class="fas fa-phone"></i>
-        <span>Appeler directement</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnWhatsapp" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fab fa-whatsapp"></i>
-        <span>WhatsApp</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnReviews" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fas fa-star"></i>
-        <span>Avis Google (5 étoiles)</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnMaps" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Localisation GPS (Maps)</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnInstagram" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fab fa-instagram"></i>
-        <span>Instagram</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnFacebook" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fab fa-facebook"></i>
-        <span>Facebook</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnTiktok" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fab fa-tiktok"></i>
-        <span>TikTok</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
-      <a id="btnWebsite" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fas fa-globe"></i>
-        <span>Site Web</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-    </div>
-  </div>
-
-  <!-- Modal PIN -->
-  <div class="modal" id="pinModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title"><i class="fas fa-lock"></i> Code PIN Requis</h3>
-        <button class="close-btn" id="closePinModal">&times;</button>
+    <a id="btnReview" href="#" target="_blank" class="btn-box full hidden" style="border-color: rgba(251,188,4,0.4); background: rgba(251,188,4,0.06);">
+      <div class="btn-icon" style="color:#FBBC04;">
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
       </div>
-      <div class="pin-prompt">
-        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Entrez votre code PIN pour modifier la carte</p>
+      <div class="btn-txt">
+        <h4>Avis Google</h4>
+        <p>Laissez-nous 5 étoiles ⭐</p>
+      </div>
+    </a>
+  </section>
+
+  <!-- Edit Form -->
+  <section id="editFormSection" class="hidden">
+    <div class="form-card">
+      <h2 class="form-title">Configuration du Stand (<span id="formClientId"></span>)</h2>
+      <form id="standForm">
         <div class="form-group">
-          <input type="password" id="inputPin" maxlength="4" placeholder="••••">
+          <div class="group-header"><label>Nom de l'entreprise ou personne *</label></div>
+          <div class="input-row"><input type="text" id="inName" required placeholder="Ex: Mohamed Faiz"></div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-submit" id="verifyPinBtn">Valider</button>
+        <div class="form-group">
+          <div class="group-header"><label>Badge / Type d'activité</label></div>
+          <div class="input-row"><input type="text" id="inActivity" placeholder="Ex: Boutique, Café, Barber..."></div>
         </div>
-      </div>
+        <div class="form-group">
+          <div class="group-header"><label>Description courte</label></div>
+          <div class="input-row"><input type="text" id="inDesc" placeholder="Ex: Bienvenue dans notre boutique"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>Téléphone(s)</label>
+            <button type="button" class="btn-add" onclick="addField('wrapPhones', 'tel', '0600000000')">+ Ajouter</button>
+          </div>
+          <div id="wrapPhones" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>WhatsApp(s) (avec indicatif)</label>
+            <button type="button" class="btn-add" onclick="addField('wrapWhatsapps', 'tel', '212600000000')">+ Ajouter</button>
+          </div>
+          <div id="wrapWhatsapps" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>Instagram(s)</label>
+            <button type="button" class="btn-add" onclick="addField('wrapInstas', 'url', 'https://instagram.com/...')">+ Ajouter</button>
+          </div>
+          <div id="wrapInstas" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>Facebook(s)</label>
+            <button type="button" class="btn-add" onclick="addField('wrapFbs', 'url', 'https://facebook.com/...')">+ Ajouter</button>
+          </div>
+          <div id="wrapFbs" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>TikTok(s)</label>
+            <button type="button" class="btn-add" onclick="addField('wrapTiktoks', 'url', 'https://tiktok.com/@...')">+ Ajouter</button>
+          </div>
+          <div id="wrapTiktoks" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>Site Web</label>
+            <button type="button" class="btn-add" onclick="addField('wrapWebsites', 'url', 'https://mon-site.com')">+ Ajouter</button>
+          </div>
+          <div id="wrapWebsites" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header">
+            <label>Google Maps</label>
+            <button type="button" class="btn-add" onclick="addField('wrapMaps', 'url', 'https://maps.app.goo.gl/...')">+ Ajouter</button>
+          </div>
+          <div id="wrapMaps" class="inputs-wrapper"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header"><label>Lien Avis Google</label></div>
+          <div class="input-row"><input type="url" id="inReview" placeholder="https://g.page/r/..."></div>
+        </div>
+
+        <div class="form-group">
+          <div class="group-header"><label>Photo de Profil / Logo</label></div>
+          <input type="file" id="fileLogo" class="file-input" accept="image/*">
+        </div>
+
+        <div class="form-group">
+          <div class="group-header"><label>Photo de Couverture</label></div>
+          <input type="file" id="fileCover" class="file-input" accept="image/*">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="btnSaveSubmit" class="btn-submit">Enregistrer</button>
+          <button type="button" id="btnCancelEdit" class="btn-cancel">Annuler</button>
+        </div>
+      </form>
     </div>
+  </section>
+</div>
+
+<!-- Modal QR Code -->
+<div id="qrModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3 id="qrModalTitle" class="modal-title">QR Code Stand</h3>
+    <img id="qrModalImg" class="qr-img" src="" alt="QR Code">
+    <button id="btnDownloadQr" class="btn-download-qr">📥 Télécharger l'image QR</button>
+    <button id="btnCloseQr" class="btn-close-qr">Fermer</button>
   </div>
+</div>
 
-  <!-- Modal Édition -->
-  <div class="modal" id="editModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title"><i class="fas fa-edit"></i> Modifier le Profil</h3>
-        <button class="close-btn" id="closeEditModal">&times;</button>
-      </div>
+<script>
+  const DASHBOARD_PIN = "2026";
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get('id');
+  const isEditParam = params.get('edit') === 'true';
 
-      <div class="form-group">
-        <label>Nom ou Enseigne :</label>
-        <input type="text" id="editName" placeholder="Ex: Café Kasbah">
-      </div>
+  let currentData = {};
+  let base64Logo = "";
+  let base64Cover = "";
 
-      <div class="form-group">
-        <label>Activité / Slogan :</label>
-        <input type="text" id="editTitle" placeholder="Ex: Restaurant & Salon de thé">
-      </div>
+  // حساب كود الزبون من 2001 إلى 2050
+  function getClientExpectedPin(id) {
+    const num = parseInt(id.replace('client', ''), 10);
+    return !isNaN(num) ? (2000 + num).toString() : "2026";
+  }
 
-      <div class="form-group">
-        <label>Description courte :</label>
-        <textarea id="editBio" rows="2" placeholder="Une courte présentation de votre établissement..."></textarea>
-      </div>
+  function show(id) {
+    ['loader', 'dashboardAuth', 'clientEditAuth', 'dashboard', 'profileView', 'editFormSection'].forEach(s => {
+      const el = document.getElementById(s);
+      if (el) el.classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+  }
 
-      <div class="form-group">
-        <label>Lien Photo de Profil (URL) :</label>
-        <input type="url" id="editAvatar" placeholder="https://...">
-      </div>
+  // 1. الدخول للوحة التحكم الرئيسية
+  if (!clientId) {
+    if (sessionStorage.getItem('dash_auth') === 'true') {
+      renderDashboard();
+      show('dashboard');
+    } else {
+      show('dashboardAuth');
+    }
+  } else if (isEditParam) {
+    // 2. فحص كود الزبون عند الدخول للإعدادات
+    const expected = getClientExpectedPin(clientId);
+    if (sessionStorage.getItem('auth_' + clientId) === expected) {
+      show('loader');
+      loadFirebaseAndInit();
+    } else {
+      document.getElementById('clientAuthSub').textContent = `Code PIN pour ${clientId} :`;
+      show('clientEditAuth');
+    }
+  } else {
+    // 3. عرض بطاقة الزبون مباشرة
+    show('loader');
+    loadFirebaseAndInit();
+  }
 
-      <div class="form-group">
-        <label>Numéro de Téléphone (Appels) :</label>
-        <input type="tel" id="editPhone" placeholder="+212600000000">
-      </div>
+  // التحقق من كود الداشبورد الرئيسي
+  document.getElementById('btnEnterDash').addEventListener('click', () => {
+    const entered = document.getElementById('inputDashPass').value.trim();
+    if (entered === DASHBOARD_PIN) {
+      sessionStorage.setItem('dash_auth', 'true');
+      renderDashboard();
+      show('dashboard');
+    } else {
+      alert("❌ Mot de passe incorrect !");
+      document.getElementById('inputDashPass').value = '';
+    }
+  });
 
-      <div class="form-group">
-        <label>WhatsApp (sans espaces) :</label>
-        <input type="tel" id="editWhatsapp" placeholder="+212600000000">
-      </div>
+  // التحقق من كود إعدادات الزبون
+  document.getElementById('btnEnterClientEdit').addEventListener('click', () => {
+    const entered = document.getElementById('inputClientPin').value.trim();
+    const expected = getClientExpectedPin(clientId);
+    if (entered === expected) {
+      sessionStorage.setItem('auth_' + clientId, expected);
+      show('loader');
+      loadFirebaseAndInit();
+    } else {
+      alert("❌ Code PIN incorrect !");
+      document.getElementById('inputClientPin').value = '';
+    }
+  });
 
-      <div class="form-group">
-        <label>Lien Avis Google (5 étoiles) :</label>
-        <input type="url" id="editReviews" placeholder="https://search.google.com/local/writereview?placeid=...">
-      </div>
+  function renderDashboard() {
+    const list = document.getElementById('clientsContainer');
+    list.innerHTML = '';
+    const origin = window.location.origin + window.location.pathname;
 
-      <div class="form-group">
-        <label>Lien Google Maps :</label>
-        <input type="url" id="editMaps" placeholder="https://maps.app.goo.gl/...">
-      </div>
+    let html = '';
+    for (let i = 1; i <= 50; i++) {
+      const cId = 'client' + String(i).padStart(2, '0');
+      const cardUrl = `${origin}?id=${cId}`;
+      const editUrl = `${origin}?id=${cId}&edit=true`;
 
-      <div class="form-group">
-        <label>Lien Instagram :</label>
-        <input type="url" id="editInstagram" placeholder="https://instagram.com/...">
-      </div>
+      html += `
+        <div class="client-row">
+          <span class="client-title">${cId}</span>
+          <div class="row-actions">
+            <button type="button" class="btn-qr" onclick="openQrModal('${cId}', '${cardUrl}')">▦ QR</button>
+            <a class="btn-action" href="${cardUrl}">Voir</a>
+            <a class="btn-action" href="${editUrl}">Éditer 🔒</a>
+          </div>
+        </div>
+      `;
+    }
+    list.innerHTML = html;
+  }
 
-      <div class="form-group">
-        <label>Lien Facebook :</label>
-        <input type="url" id="editFacebook" placeholder="https://facebook.com/...">
-      </div>
+  window.openQrModal = function(id, url) {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+    document.getElementById('qrModalTitle').textContent = `QR Code — ${id}`;
+    document.getElementById('qrModalImg').src = qrUrl;
 
-      <div class="form-group">
-        <label>Lien TikTok :</label>
-        <input type="url" id="editTiktok" placeholder="https://tiktok.com/@...">
-      </div>
+    document.getElementById('btnDownloadQr').onclick = async () => {
+      try {
+        const res = await fetch(qrUrl);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `QR_${id}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch(e) { window.open(qrUrl, '_blank'); }
+    };
+    document.getElementById('qrModal').classList.remove('hidden');
+  };
 
-      <div class="form-group">
-        <label>Site Web :</label>
-        <input type="url" id="editWebsite" placeholder="https://www.monsite.com">
-      </div>
+  document.getElementById('btnCloseQr').addEventListener('click', () => {
+    document.getElementById('qrModal').classList.add('hidden');
+  });
 
-      <div class="modal-actions">
-        <button class="btn-submit" id="saveDataBtn">Enregistrer les modifications</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+  async function loadFirebaseAndInit() {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js");
+    const { getFirestore, doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js");
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDyqHqjM0U5y8-ExampleKey",
+      apiKey: "AIzaSyDVwTZVjpTeFC7M9V0rZacSYxSDffAXnMw",
       authDomain: "cartes-clients-aa64f.firebaseapp.com",
       projectId: "cartes-clients-aa64f",
-      storageBucket: "cartes-clients-aa64f.appspot.com",
-      messagingSenderId: "305149302636",
-      appId: "1:305149302636:web:644a86f9f7435f3dfd9f8e"
+      storageBucket: "cartes-clients-aa64f.firebasestorage.app",
+      messagingSenderId: "469049575960",
+      appId: "1:469049575960:web:0d7a9f1b96ba98383f916d"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientId = urlParams.get('id') || 'client01';
+    try {
+      const snap = await getDoc(doc(db, "clients", clientId));
+      if (snap.exists()) currentData = snap.data();
+    } catch(e) { console.error(e); }
 
-    let currentClientData = {};
-
-    const clientNumber = parseInt(clientId.replace('client', ''), 10) || 1;
-    const clientPin = (2000 + clientNumber).toString();
-    const masterPin = "2026";
-
-    async function loadData() {
-      try {
-        const docRef = doc(db, "clients", clientId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          currentClientData = docSnap.data();
-          renderCard(currentClientData);
-        } else {
-          currentClientData = {
-            name: "Nom de l'établissement",
-            title: "Activité commerciale",
-            bio: "Scannez ou touchez avec NFC pour nous suivre et enregistrer nos coordonnées.",
-            avatar: "https://via.placeholder.com/150/21262d/d4af37?text=MyStand"
-          };
-          renderCard(currentClientData);
-        }
-      } catch (e) {
-        console.error("Erreur de chargement Firestore:", e);
-      }
+    if (isEditParam) {
+      showEdit();
+    } else {
+      renderProfile();
+      show('profileView');
     }
 
-    function renderCard(data) {
-      document.getElementById('viewName').innerText = data.name || "Nom de l'entreprise";
-      document.getElementById('viewTitle').innerText = data.title || "Activité";
-      document.getElementById('viewBio').innerText = data.bio || "";
-      if (data.avatar) document.getElementById('viewAvatar').src = data.avatar;
+    document.getElementById('standForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveSubmit');
+      btn.textContent = 'Enregistrement...';
+      btn.disabled = true;
 
-      bindButton('btnPhone', data.phone ? `tel:${data.phone}` : null);
-      bindButton('btnWhatsapp', data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}` : null);
-      bindButton('btnReviews', data.reviews || null);
-      bindButton('btnMaps', data.maps || null);
-      bindButton('btnInstagram', data.instagram || null);
-      bindButton('btnFacebook', data.facebook || null);
-      bindButton('btnTiktok', data.tiktok || null);
-      bindButton('btnWebsite', data.website || null);
-    }
-
-    function bindButton(elemId, url) {
-      const el = document.getElementById(elemId);
-      if (url) {
-        el.href = url;
-        el.style.display = 'flex';
-      } else {
-        el.style.display = 'none';
-      }
-    }
-
-    document.getElementById('saveContactBtn').addEventListener('click', () => {
-      const name = currentClientData.name || "MyStand Contact";
-      const phone = currentClientData.phone || "";
-      const note = currentClientData.bio || "";
-
-      let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
-      vcard += `FN:${name}\n`;
-      if (phone) vcard += `TEL;TYPE=CELL:${phone}\n`;
-      if (note) vcard += `NOTE:${note}\n`;
-      vcard += "END:VCARD";
-
-      const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${name.replace(/\s+/g, '_')}.vcf`;
-      link.click();
-    });
-
-    const pinModal = document.getElementById('pinModal');
-    const editModal = document.getElementById('editModal');
-
-    document.getElementById('openEditBtn').addEventListener('click', () => {
-      document.getElementById('inputPin').value = '';
-      pinModal.classList.add('active');
-    });
-
-    document.getElementById('closePinModal').addEventListener('click', () => pinModal.classList.remove('active'));
-    document.getElementById('closeEditModal').addEventListener('click', () => editModal.classList.remove('active'));
-
-    document.getElementById('verifyPinBtn').addEventListener('click', () => {
-      const enteredPin = document.getElementById('inputPin').value;
-      if (enteredPin === masterPin || enteredPin === clientPin) {
-        pinModal.classList.remove('active');
-        openEditForm();
-      } else {
-        alert("Code PIN incorrect !");
-      }
-    });
-
-    function openEditForm() {
-      document.getElementById('editName').value = currentClientData.name || '';
-      document.getElementById('editTitle').value = currentClientData.title || '';
-      document.getElementById('editBio').value = currentClientData.bio || '';
-      document.getElementById('editAvatar').value = currentClientData.avatar || '';
-      document.getElementById('editPhone').value = currentClientData.phone || '';
-      document.getElementById('editWhatsapp').value = currentClientData.whatsapp || '';
-      document.getElementById('editReviews').value = currentClientData.reviews || '';
-      document.getElementById('editMaps').value = currentClientData.maps || '';
-      document.getElementById('editInstagram').value = currentClientData.instagram || '';
-      document.getElementById('editFacebook').value = currentClientData.facebook || '';
-      document.getElementById('editTiktok').value = currentClientData.tiktok || '';
-      document.getElementById('editWebsite').value = currentClientData.website || '';
-      editModal.classList.add('active');
-    }
-
-    document.getElementById('saveDataBtn').addEventListener('click', async () => {
-      const updatedData = {
-        name: document.getElementById('editName').value,
-        title: document.getElementById('editTitle').value,
-        bio: document.getElementById('editBio').value,
-        avatar: document.getElementById('editAvatar').value,
-        phone: document.getElementById('editPhone').value,
-        whatsapp: document.getElementById('editWhatsapp').value,
-        reviews: document.getElementById('editReviews').value,
-        maps: document.getElementById('editMaps').value,
-        instagram: document.getElementById('editInstagram').value,
-        facebook: document.getElementById('editFacebook').value,
-        tiktok: document.getElementById('editTiktok').value,
-        website: document.getElementById('editWebsite').value
+      const data = {
+        name: document.getElementById('inName').value,
+        activity: document.getElementById('inActivity').value,
+        desc: document.getElementById('inDesc').value,
+        review: document.getElementById('inReview').value,
+        phones: getFieldValues('wrapPhones'),
+        whatsapps: getFieldValues('wrapWhatsapps'),
+        instas: getFieldValues('wrapInstas'),
+        fbs: getFieldValues('wrapFbs'),
+        tiktoks: getFieldValues('wrapTiktoks'),
+        websites: getFieldValues('wrapWebsites'),
+        mapsList: getFieldValues('wrapMaps'),
+        logo: base64Logo,
+        cover: base64Cover
       };
 
       try {
-        await setDoc(doc(db, "clients", clientId), updatedData);
-        currentClientData = updatedData;
-        renderCard(currentClientData);
-        editModal.classList.remove('active');
-        alert("Modifications enregistrées avec succès !");
-      } catch (e) {
-        alert("Erreur lors de l'enregistrement : " + e.message);
+        await setDoc(doc(db, "clients", clientId), data);
+        window.location.href = window.location.pathname + '?id=' + clientId;
+      } catch (err) {
+        alert("Erreur: " + err.message);
+        btn.textContent = 'Enregistrer';
+        btn.disabled = false;
       }
+    };
+  }
+
+  window.addField = function(wrapperId, type, placeholder, value = '') {
+    const wrap = document.getElementById(wrapperId);
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    row.innerHTML = `
+      <input type="${type}" placeholder="${placeholder}" value="${value}">
+      <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+    `;
+    wrap.appendChild(row);
+  };
+
+  function getFieldValues(wrapperId) {
+    const inputs = document.querySelectorAll(`#${wrapperId} input`);
+    const vals = [];
+    inputs.forEach(inp => { if (inp.value.trim()) vals.push(inp.value.trim()); });
+    return vals;
+  }
+
+  function setFieldValues(wrapperId, type, placeholder, array) {
+    const wrap = document.getElementById(wrapperId);
+    wrap.innerHTML = '';
+    if (array && array.length > 0) {
+      array.forEach(val => window.addField(wrapperId, type, placeholder, val));
+    } else {
+      window.addField(wrapperId, type, placeholder, '');
+    }
+  }
+
+  function renderProfile() {
+    const d = currentData || {};
+    document.getElementById('viewName').textContent = d.name || 'Stand NFC';
+    document.getElementById('viewDesc').textContent = d.desc || '';
+
+    const badge = document.getElementById('viewBadge');
+    if (d.activity) {
+      badge.textContent = d.activity;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    if (d.logo) {
+      const img = document.getElementById('viewAvatarImg');
+      img.src = d.logo;
+      img.classList.remove('hidden');
+      document.getElementById('viewAvatarPlaceholder').classList.add('hidden');
+    }
+
+    if (d.cover) {
+      document.getElementById('viewCover').style.backgroundImage = `url(${d.cover})`;
+    }
+
+    // Contacts
+    const cGrid = document.getElementById('contactGrid');
+    cGrid.innerHTML = '';
+    const phones = Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []);
+    const whatsapps = Array.isArray(d.whatsapps) ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []);
+    
+    phones.forEach((p, idx) => {
+      cGrid.innerHTML += `
+        <a href="tel:${p}" class="btn-box">
+          <div class="btn-icon" style="color:#2ecc71;"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.72 11.72 0 003.68.59 1 1 0 011 1v3.5a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.72 11.72 0 00.59 3.68 1 1 0 01-.25 1.02l-2.22 2.09z"/></svg></div>
+          <div class="btn-txt"><h4>Appeler ${phones.length > 1 ? (idx + 1) : ''}</h4><p>${p}</p></div>
+        </a>
+      `;
     });
 
-    loadData();
-  </script>
+    whatsapps.forEach((w, idx) => {
+      cGrid.innerHTML += `
+        <a href="https://wa.me/${w}" target="_blank" class="btn-box">
+          <div class="btn-icon" style="color:#25D366;"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.8 14.12c-.24.68-1.2 1.25-1.66 1.33-.44.08-1.01.12-3.26-.81-2.88-1.19-4.73-4.14-4.88-4.33-.14-.2-1.17-1.56-1.17-2.98 0-1.41.74-2.11 1-2.4.26-.29.58-.36.77-.36.19 0 .39.01.55.02.18.01.42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.33.02.53-.1.2-.15.32-.3.49-.15.18-.31.4-.45.54-.15.15-.3.32-.13.62.17.29.77 1.27 1.65 2.05 1.13 1.01 2.09 1.32 2.38 1.47.3.15.47.12.64-.07.18-.2.77-.89.97-1.2.2-.31.41-.26.68-.15.28.11 1.75.82 2.05.97.3.15.5.22.58.34.07.13.07.74-.17 1.42z"/></svg></div>
+          <div class="btn-txt"><h4>WhatsApp ${whatsapps.length > 1 ? (idx + 1) : ''}</h4><p>Discuter</p></div>
+        </a>
+      `;
+    });
+
+    // Socials
+    const sGrid = document.getElementById('socialGrid');
+    sGrid.innerHTML = '';
+    const instas = Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []);
+    const fbs = Array.isArray(d.fbs) ? d.fbs : (d.facebook ? [d.facebook] : []);
+
+    instas.forEach((ins, idx) => {
+      sGrid.innerHTML += `
+        <a href="${ins}" target="_blank" class="btn-box">
+          <div class="btn-icon" style="color:#E1306C;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+          <div class="btn-txt"><h4>Instagram ${instas.length > 1 ? (idx + 1) : ''}</h4><p>Suivre</p></div>
+        </a>
+      `;
+    });
+
+    fbs.forEach((f, idx) => {
+      sGrid.innerHTML += `
+        <a href="${f}" target="_blank" class="btn-box">
+          <div class="btn-icon" style="color:#1877F2;"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+          <div class="btn-txt"><h4>Facebook ${fbs.length > 1 ? (idx + 1) : ''}</h4><p>Page</p></div>
+        </a>
+      `;
+    });
+
+    // TikTok
+    const tkWrap = document.getElementById('tiktokContainer');
+    tkWrap.innerHTML = '';
+    const tiktoks = Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []);
+    tiktoks.forEach((tk, idx) => {
+      tkWrap.innerHTML += `
+        <a href="${tk}" target="_blank" class="btn-box full">
+          <div class="btn-icon" style="color:#fff;"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.44.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.82 2.89 3.46 2.71 1.07-.06 2.07-.64 2.62-1.57.43-.69.63-1.5.62-2.31.05-4.88.01-9.76.02-14.64z"/></svg></div>
+          <div class="btn-txt"><h4>TikTok ${tiktoks.length > 1 ? (idx + 1) : ''}</h4><p>Vidéos</p></div>
+        </a>
+      `;
+    });
+
+    // Site Web
+    const webWrap = document.getElementById('websiteContainer');
+    webWrap.innerHTML = '';
+    const websites = Array.isArray(d.websites) ? d.websites : (d.website ? [d.website] : []);
+    websites.forEach((web, idx) => {
+      webWrap.innerHTML += `
+        <a href="${web}" target="_blank" class="btn-box full">
+          <div class="btn-icon" style="color:var(--gold);"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+          <div class="btn-txt"><h4>Site Web ${websites.length > 1 ? (idx + 1) : ''}</h4><p>Visiter notre site</p></div>
+        </a>
+      `;
+    });
+
+    // Google Maps
+    const mapsWrap = document.getElementById('mapsContainer');
+    mapsWrap.innerHTML = '';
+    const maps = Array.isArray(d.mapsList) ? d.mapsList : (d.maps ? [d.maps] : []);
+    maps.forEach((m, idx) => {
+      mapsWrap.innerHTML += `
+        <a href="${m}" target="_blank" class="btn-box full">
+          <div class="btn-icon" style="color:#EA4335;"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg></div>
+          <div class="btn-txt"><h4>Google Maps ${maps.length > 1 ? (idx + 1) : ''}</h4><p>Itinéraire</p></div>
+        </a>
+      `;
+    });
+
+    // Avis Google
+    const btnRev = document.getElementById('btnReview');
+    if (d.review) {
+      btnRev.href = d.review;
+      btnRev.classList.remove('hidden');
+    } else {
+      btnRev.classList.add('hidden');
+    }
+  }
+
+  function showEdit() {
+    document.getElementById('formClientId').textContent = clientId;
+    const d = currentData || {};
+    document.getElementById('inName').value = d.name || '';
+    document.getElementById('inActivity').value = d.activity || '';
+    document.getElementById('inDesc').value = d.desc || '';
+    document.getElementById('inReview').value = d.review || '';
+
+    setFieldValues('wrapPhones', 'tel', '0600000000', Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []));
+    setFieldValues('wrapWhatsapps', 'tel', '212600000000', Array.isArray(d.whatsapps) ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []));
+    setFieldValues('wrapInstas', 'url', 'https://instagram.com/...', Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []));
+    setFieldValues('wrapFbs', 'url', 'https://facebook.com/...', Array.isArray(d.fbs) ? d.fbs : (d.facebook ? [d.facebook] : []));
+    setFieldValues('wrapTiktoks', 'url', 'https://tiktok.com/@...', Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []));
+    setFieldValues('wrapWebsites', 'url', 'https://mon-site.com', Array.isArray(d.websites) ? d.websites : (d.website ? [d.website] : []));
+    setFieldValues('wrapMaps', 'url', 'https://maps.app.goo.gl/...', Array.isArray(d.mapsList) ? d.mapsList : (d.maps ? [d.maps] : []));
+
+    base64Logo = d.logo || "";
+    base64Cover = d.cover || "";
+    show('editFormSection');
+  }
+
+  function readFileAsBase64(file, maxW, maxH) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxW || h > maxH) {
+            const ratio = Math.min(maxW / w, maxH / h);
+            w *= ratio;
+            h *= ratio;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.55));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('fileLogo').addEventListener('change', async (e) => {
+    if (e.target.files[0]) base64Logo = await readFileAsBase64(e.target.files[0], 180, 180);
+  });
+
+  document.getElementById('fileCover').addEventListener('change', async (e) => {
+    if (e.target.files[0]) base64Cover = await readFileAsBase64(e.target.files[0], 450, 220);
+  });
+
+  document.getElementById('btnCancelEdit').addEventListener('click', () => {
+    window.location.href = window.location.pathname + '?id=' + clientId;
+  });
+
+  // توليد بطاقة جهة الاتصال
+  document.getElementById('btnSaveVcard').addEventListener('click', () => {
+    const d = currentData || {};
+    const fullName = (d.name || 'Client').trim();
+    const nameParts = fullName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const phones = Array.isArray(d.phones) && d.phones.length > 0 ? d.phones : (d.phone ? [d.phone] : []);
+    const whatsapps = Array.isArray(d.whatsapps) && d.whatsapps.length > 0 ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []);
+    const websites = Array.isArray(d.websites) && d.websites.length > 0 ? d.websites : (d.website ? [d.website] : []);
+    const instas = Array.isArray(d.instas) && d.instas.length > 0 ? d.instas : (d.instagram ? [d.instagram] : []);
+    const fbs = Array.isArray(d.fbs) && d.fbs.length > 0 ? d.fbs : (d.facebook ? [d.facebook] : []);
+    const tiktoks = Array.isArray(d.tiktoks) && d.tiktoks.length > 0 ? d.tiktoks : (d.tiktok ? [d.tiktok] : []);
+    const maps = Array.isArray(d.mapsList) && d.mapsList.length > 0 ? d.mapsList : (d.maps ? [d.maps] : []);
+
+    let lines = [];
+    lines.push("BEGIN:VCARD");
+    lines.push("VERSION:3.0");
+    lines.push(`N:${lastName};${firstName};;;`);
+    lines.push(`FN:${fullName}`);
+
+    if (d.activity) lines.push(`TITLE:${d.activity}`);
+
+    phones.forEach(p => { lines.push(`TEL;TYPE=CELL,VOICE:${p}`); });
+    whatsapps.forEach(w => {
+      if (!phones.includes(w)) lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
+    });
+
+    let itemIndex = 1;
+    instas.forEach((ins, i) => {
+      lines.push(`item${itemIndex}.URL:${ins}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Instagram ${instas.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    fbs.forEach((f, i) => {
+      lines.push(`item${itemIndex}.URL:${f}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Facebook ${fbs.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    tiktoks.forEach((tk, i) => {
+      lines.push(`item${itemIndex}.URL:${tk}`);
+      lines.push(`item${itemIndex}.X-ABLabel:TikTok ${tiktoks.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    websites.forEach((w, i) => {
+      lines.push(`item${itemIndex}.URL:${w}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Site Web ${websites.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    maps.forEach((m, i) => {
+      lines.push(`item${itemIndex}.URL:${m}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Google Maps ${maps.length > 1 ? (i + 1) : ''}`);
+      itemIndex++;
+    });
+
+    if (d.review) {
+      lines.push(`item${itemIndex}.URL:${d.review}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Avis Google`);
+      itemIndex++;
+    }
+
+    if (d.logo && d.logo.includes(',')) {
+      const b64 = d.logo.split(',')[1].replace(/[\r\n\s]/g, '');
+      const chunks = b64.match(/.{1,72}/g);
+      if (chunks && chunks.length > 0) {
+        lines.push(`PHOTO;TYPE=JPEG;ENCODING=BASE64:`);
+        chunks.forEach(chunk => { lines.push(` ${chunk}`); });
+      }
+    }
+
+    lines.push("END:VCARD");
+
+    const vcfContent = lines.join("\r\n");
+    const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fullName}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+</script>
 </body>
 </html>
