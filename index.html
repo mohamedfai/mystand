@@ -134,6 +134,7 @@
     <button id="btnSaveVcard" class="btn-vcard">💾 Enregistrer le contact</button>
 
     <div id="contactGrid" class="grid"></div>
+    <div id="emailContainer"></div>
     <div id="socialGrid" class="grid"></div>
     <div id="tiktokContainer"></div>
     <div id="websiteContainer"></div>
@@ -182,6 +183,15 @@
             <button type="button" class="btn-add" onclick="addField('wrapWhatsapps', 'tel', '212600000000')">+ Ajouter</button>
           </div>
           <div id="wrapWhatsapps" class="inputs-wrapper"></div>
+        </div>
+
+        <!-- إضافة حقل الإيميل في الفورم -->
+        <div class="form-group">
+          <div class="group-header">
+            <label>Email(s) / Gmail</label>
+            <button type="button" class="btn-add" onclick="addField('wrapEmails', 'email', 'contact@gmail.com')">+ Ajouter</button>
+          </div>
+          <div id="wrapEmails" class="inputs-wrapper"></div>
         </div>
 
         <div class="form-group">
@@ -268,7 +278,6 @@
   let base64Logo = "";
   let base64Cover = "";
 
-  // حساب كود الزبون من 2001 إلى 2050
   function getClientExpectedPin(id) {
     const num = parseInt(id.replace('client', ''), 10);
     return !isNaN(num) ? (2000 + num).toString() : "2026";
@@ -282,7 +291,6 @@
     document.getElementById(id).classList.remove('hidden');
   }
 
-  // 1. الدخول للوحة التحكم الرئيسية
   if (!clientId) {
     if (sessionStorage.getItem('dash_auth') === 'true') {
       renderDashboard();
@@ -291,7 +299,6 @@
       show('dashboardAuth');
     }
   } else if (isEditParam) {
-    // 2. فحص كود الزبون عند الدخول للإعدادات
     const expected = getClientExpectedPin(clientId);
     if (sessionStorage.getItem('auth_' + clientId) === expected) {
       show('loader');
@@ -301,12 +308,10 @@
       show('clientEditAuth');
     }
   } else {
-    // 3. عرض بطاقة الزبون مباشرة
     show('loader');
     loadFirebaseAndInit();
   }
 
-  // التحقق من كود الداشبورد الرئيسي
   document.getElementById('btnEnterDash').addEventListener('click', () => {
     const entered = document.getElementById('inputDashPass').value.trim();
     if (entered === DASHBOARD_PIN) {
@@ -319,7 +324,6 @@
     }
   });
 
-  // التحقق من كود إعدادات الزبون
   document.getElementById('btnEnterClientEdit').addEventListener('click', () => {
     const entered = document.getElementById('inputClientPin').value.trim();
     const expected = getClientExpectedPin(clientId);
@@ -424,6 +428,7 @@
         review: document.getElementById('inReview').value,
         phones: getFieldValues('wrapPhones'),
         whatsapps: getFieldValues('wrapWhatsapps'),
+        emails: getFieldValues('wrapEmails'),
         instas: getFieldValues('wrapInstas'),
         fbs: getFieldValues('wrapFbs'),
         tiktoks: getFieldValues('wrapTiktoks'),
@@ -520,6 +525,19 @@
       `;
     });
 
+    // Emails / Gmail
+    const emWrap = document.getElementById('emailContainer');
+    emWrap.innerHTML = '';
+    const emails = Array.isArray(d.emails) ? d.emails : (d.email ? [d.email] : []);
+    emails.forEach((em, idx) => {
+      emWrap.innerHTML += `
+        <a href="mailto:${em}" target="_blank" class="btn-box full">
+          <div class="btn-icon" style="color:#EA4335;"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="btn-txt"><h4>Email ${emails.length > 1 ? (idx + 1) : ''}</h4><p>${em}</p></div>
+        </a>
+      `;
+    });
+
     // Socials
     const sGrid = document.getElementById('socialGrid');
     sGrid.innerHTML = '';
@@ -603,6 +621,7 @@
 
     setFieldValues('wrapPhones', 'tel', '0600000000', Array.isArray(d.phones) ? d.phones : (d.phone ? [d.phone] : []));
     setFieldValues('wrapWhatsapps', 'tel', '212600000000', Array.isArray(d.whatsapps) ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []));
+    setFieldValues('wrapEmails', 'email', 'contact@gmail.com', Array.isArray(d.emails) ? d.emails : (d.email ? [d.email] : []));
     setFieldValues('wrapInstas', 'url', 'https://instagram.com/...', Array.isArray(d.instas) ? d.instas : (d.instagram ? [d.instagram] : []));
     setFieldValues('wrapFbs', 'url', 'https://facebook.com/...', Array.isArray(d.fbs) ? d.fbs : (d.facebook ? [d.facebook] : []));
     setFieldValues('wrapTiktoks', 'url', 'https://tiktok.com/@...', Array.isArray(d.tiktoks) ? d.tiktoks : (d.tiktok ? [d.tiktok] : []));
@@ -661,6 +680,7 @@
 
     const phones = Array.isArray(d.phones) && d.phones.length > 0 ? d.phones : (d.phone ? [d.phone] : []);
     const whatsapps = Array.isArray(d.whatsapps) && d.whatsapps.length > 0 ? d.whatsapps : (d.whatsapp ? [d.whatsapp] : []);
+    const emails = Array.isArray(d.emails) && d.emails.length > 0 ? d.emails : (d.email ? [d.email] : []);
     const websites = Array.isArray(d.websites) && d.websites.length > 0 ? d.websites : (d.website ? [d.website] : []);
     const instas = Array.isArray(d.instas) && d.instas.length > 0 ? d.instas : (d.instagram ? [d.instagram] : []);
     const fbs = Array.isArray(d.fbs) && d.fbs.length > 0 ? d.fbs : (d.facebook ? [d.facebook] : []);
@@ -679,6 +699,8 @@
     whatsapps.forEach(w => {
       if (!phones.includes(w)) lines.push(`TEL;TYPE=WHATSAPP,VOICE:${w}`);
     });
+
+    emails.forEach(em => { lines.push(`EMAIL;TYPE=INTERNET:${em}`); });
 
     let itemIndex = 1;
     instas.forEach((ins, i) => {
