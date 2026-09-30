@@ -196,7 +196,6 @@
 
     .link-item .fa-phone { color: #34c759; }
     .link-item .fa-whatsapp { color: #25d366; }
-    .link-item .fa-envelope { color: #ea4335; }
     .link-item .fa-instagram { color: #e1306c; }
     .link-item .fa-facebook { color: #1877f2; }
     .link-item .fa-tiktok { color: #ffffff; }
@@ -367,13 +366,6 @@
         <i class="fas fa-chevron-right arrow"></i>
       </a>
 
-      <!-- زر الإيميل / Gmail المضاف حديثاً -->
-      <a id="btnEmail" href="#" class="link-item" target="_blank" style="display: none;">
-        <i class="fas fa-envelope"></i>
-        <span>Email / Gmail</span>
-        <i class="fas fa-chevron-right arrow"></i>
-      </a>
-
       <a id="btnReviews" href="#" class="link-item" target="_blank" style="display: none;">
         <i class="fas fa-star"></i>
         <span>Avis Google (5 étoiles)</span>
@@ -469,12 +461,6 @@
         <input type="tel" id="editWhatsapp" placeholder="+212600000000">
       </div>
 
-      <!-- خانة الإيميل المضافة حديثاً في الاستمارة -->
-      <div class="form-group">
-        <label>Email / Gmail :</label>
-        <input type="email" id="editEmail" placeholder="contact@domaine.com">
-      </div>
-
       <div class="form-group">
         <label>Lien Avis Google (5 étoiles) :</label>
         <input type="url" id="editReviews" placeholder="https://search.google.com/local/writereview?placeid=...">
@@ -516,7 +502,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // إعدادات Firebase الخاصة بمشروعك
     const firebaseConfig = {
       apiKey: "AIzaSyDyqHqjM0U5y8-ExampleKey",
       authDomain: "cartes-clients-aa64f.firebaseapp.com",
@@ -529,18 +514,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // معرف الزبون من الرابط (مثال: ?id=client01)
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('id') || 'client01';
 
     let currentClientData = {};
 
-    // حساب رمز PIN الافتراضي للزبون (من 2001 إلى 2050)
     const clientNumber = parseInt(clientId.replace('client', ''), 10) || 1;
     const clientPin = (2000 + clientNumber).toString();
     const masterPin = "2026";
 
-    // جلب البيانات من Firestore
     async function loadData() {
       try {
         const docRef = doc(db, "clients", clientId);
@@ -550,7 +532,6 @@
           currentClientData = docSnap.data();
           renderCard(currentClientData);
         } else {
-          // بيانات افتراضية إذا كانت البطاقة جديدة
           currentClientData = {
             name: "Nom de l'établissement",
             title: "Activité commerciale",
@@ -570,11 +551,8 @@
       document.getElementById('viewBio').innerText = data.bio || "";
       if (data.avatar) document.getElementById('viewAvatar').src = data.avatar;
 
-      // الأزرار
       bindButton('btnPhone', data.phone ? `tel:${data.phone}` : null);
       bindButton('btnWhatsapp', data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}` : null);
-      // ربط زر الإيميل
-      bindButton('btnEmail', data.email ? `mailto:${data.email}` : null);
       bindButton('btnReviews', data.reviews || null);
       bindButton('btnMaps', data.maps || null);
       bindButton('btnInstagram', data.instagram || null);
@@ -593,17 +571,14 @@
       }
     }
 
-    // توليد ملف VCF لحفظ جهة الاتصال
     document.getElementById('saveContactBtn').addEventListener('click', () => {
       const name = currentClientData.name || "MyStand Contact";
       const phone = currentClientData.phone || "";
-      const email = currentClientData.email || "";
       const note = currentClientData.bio || "";
 
       let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
       vcard += `FN:${name}\n`;
       if (phone) vcard += `TEL;TYPE=CELL:${phone}\n`;
-      if (email) vcard += `EMAIL;TYPE=INTERNET:${email}\n`;
       if (note) vcard += `NOTE:${note}\n`;
       vcard += "END:VCARD";
 
@@ -614,7 +589,6 @@
       link.click();
     });
 
-    // إدارة النوافذ و PIN
     const pinModal = document.getElementById('pinModal');
     const editModal = document.getElementById('editModal');
 
@@ -643,7 +617,6 @@
       document.getElementById('editAvatar').value = currentClientData.avatar || '';
       document.getElementById('editPhone').value = currentClientData.phone || '';
       document.getElementById('editWhatsapp').value = currentClientData.whatsapp || '';
-      document.getElementById('editEmail').value = currentClientData.email || '';
       document.getElementById('editReviews').value = currentClientData.reviews || '';
       document.getElementById('editMaps').value = currentClientData.maps || '';
       document.getElementById('editInstagram').value = currentClientData.instagram || '';
@@ -653,7 +626,6 @@
       editModal.classList.add('active');
     }
 
-    // حفظ التعديلات في Firestore
     document.getElementById('saveDataBtn').addEventListener('click', async () => {
       const updatedData = {
         name: document.getElementById('editName').value,
@@ -662,7 +634,6 @@
         avatar: document.getElementById('editAvatar').value,
         phone: document.getElementById('editPhone').value,
         whatsapp: document.getElementById('editWhatsapp').value,
-        email: document.getElementById('editEmail').value,
         reviews: document.getElementById('editReviews').value,
         maps: document.getElementById('editMaps').value,
         instagram: document.getElementById('editInstagram').value,
